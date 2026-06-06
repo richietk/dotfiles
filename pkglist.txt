@@ -13,7 +13,6 @@ brightnessctl
 claude-code
 cliphist
 cmatrix
-cool-retro-term
 cowsay
 cups
 cups-pdf
