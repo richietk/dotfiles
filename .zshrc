@@ -548,6 +548,18 @@ cleanup() {
 
 alias updt="sudo pacman -Syu"
 
+updtpkglist() {
+    pacman -Qqe > ~/dotfiles/pkglist.txt
+    cd ~/dotfiles && git add pkglist.txt && git commit -m "update pkglist" && git push
+    cd -
+}
+
+pushdots() {
+    local msg="${1:-update dotfiles}"
+    cd ~/dotfiles && git add . && git commit -m "$msg" && git push
+    cd -
+}
+
 # Go up N directories
 up() {
     local n="${1:-1}"
