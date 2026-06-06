@@ -137,7 +137,7 @@ alias c='clear'
 # --- zsh config maintenance (renamed from the fish* aliases) ---
 alias zshpwd="echo ~/.zshrc"
 alias zshcopy="copy ~/.zshrc"
-alias sourcez='source ~/.zshrc'
+alias sourcezsh='source ~/.zshrc'
 alias zshconfig='nano ~/.zshrc'
 alias htopcopy="copy 'ps auxf'"
 
@@ -148,6 +148,19 @@ zshcfgsrc() {
     nano ~/.zshrc
   fi
   source ~/.zshrc
+}
+
+
+temps() {
+  sensors | awk '
+    /mt7921/   { chip="wifi" }
+    /acpitz/   { chip="mb" }
+    /edge:/      { print "GPU:         " $2 }
+    /Tctl:/      { print "CPU:         " $2 }
+    /Composite:/ { print "SSD:         " $2 }
+    /temp1:/ && chip=="wifi" { print "Wi-Fi:       " $2 }
+    /temp1:/ && chip=="mb"   { print "Motherboard: " $2 }
+  '
 }
 
 
