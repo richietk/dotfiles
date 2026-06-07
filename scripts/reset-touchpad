@@ -1,0 +1,4 @@
+#!/bin/bash
+echo "i2c-ASUE120B:00" > /sys/bus/i2c/drivers/i2c_hid_acpi/unbind
+sleep 0.2
+echo "i2c-ASUE120B:00" > /sys/bus/i2c/drivers/i2c_hid_acpi/bind

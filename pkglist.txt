@@ -24,6 +24,7 @@ dosfstools
 doublecmd-qt5
 dunst
 efibootmgr
+evtest
 exfatprogs
 expac
 fastfetch
@@ -112,6 +113,7 @@ pnpm
 power-profiles-daemon
 proton-vpn-cli
 pyright
+python-evdev
 python-matplotlib
 python-numpy
 python-opencv
@@ -154,6 +156,7 @@ ttf-nerd-fonts-symbols
 unrar
 usbmuxd
 usbutils
+ventoy-bin
 vim
 visual-studio-code-bin
 vlc

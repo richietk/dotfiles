@@ -1,0 +1,12 @@
+[Unit]
+Description=Touchpad BTN_LEFT filter (drops stuck-click ELAN firmware bug)
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/touchpad-filter
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target

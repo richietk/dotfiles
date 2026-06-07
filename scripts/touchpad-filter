@@ -1,0 +1,106 @@
+#!/usr/bin/env python3
+"""
+touchpad-filter: drops all hardware BTN_LEFT events from the ELAN touchpad.
+
+The ELAN firmware on the ASUS VivoBook sometimes holds BTN_LEFT asserted for
+many seconds after accidental palm pressure, causing a stuck-drag state.
+This daemon grabs the real device exclusively, creates a virtual clone via
+uinput, and forwards every event except BTN_LEFT press/release.
+
+Tap-to-click is unaffected: libinput synthesises click events from touch
+contact data (BTN_TOUCH / ABS_MT_*), it does not need hardware BTN_LEFT.
+"""
+
+import evdev
+from evdev import UInput, ecodes
+import sys
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [touchpad-filter] %(levelname)s: %(message)s",
+)
+log = logging.getLogger(__name__)
+
+DEVICE_NAME = "ASUE120B:00 04F3:31C0 Touchpad"
+
+
+def find_device(name: str) -> evdev.InputDevice:
+    for path in evdev.list_devices():
+        dev = evdev.InputDevice(path)
+        if dev.name == name:
+            return dev
+    raise FileNotFoundError(f"Touchpad '{name}' not found in /dev/input/")
+
+
+def build_capabilities(real: evdev.InputDevice) -> dict:
+    """Return the real device's capability dict, removing BTN_LEFT and unsupported types."""
+    cap = real.capabilities(absinfo=True)
+    # Remove BTN_LEFT
+    if ecodes.EV_KEY in cap:
+        cap[ecodes.EV_KEY] = [k for k in cap[ecodes.EV_KEY] if k != ecodes.BTN_LEFT]
+    # uinput handles EV_SYN itself — passing it causes EINVAL
+    cap.pop(ecodes.EV_SYN, None)
+    # uinput doesn't support MSC_TIMESTAMP — also causes EINVAL
+    cap.pop(ecodes.EV_MSC, None)
+    return cap
+
+
+def run():
+    log.info(f"Looking for: {DEVICE_NAME}")
+    try:
+        real = find_device(DEVICE_NAME)
+    except FileNotFoundError as e:
+        log.error(e)
+        sys.exit(1)
+
+    log.info(f"Device: {real.name}  ({real.phys})")
+
+    cap = build_capabilities(real)
+
+    ui = UInput(
+        cap,
+        name="Touchpad (BTN_LEFT filtered)",
+        vendor=real.info.vendor,
+        product=real.info.product,
+        version=real.info.version,
+    )
+    log.info(f"Virtual device created: {ui.device.path}")
+
+    real.grab()
+    log.info("Device grabbed. Forwarding all events except BTN_LEFT.")
+
+    dropped_presses = 0
+    dropped_releases = 0
+
+    try:
+        for event in real.read_loop():
+            if event.type == ecodes.EV_KEY and event.code == ecodes.BTN_LEFT:
+                if event.value == 1:
+                    dropped_presses += 1
+                    log.debug(f"Dropped BTN_LEFT press  (total dropped: {dropped_presses})")
+                else:
+                    dropped_releases += 1
+                    log.debug(f"Dropped BTN_LEFT release (total dropped: {dropped_releases})")
+                # Do not forward — just discard.
+            else:
+                ui.write_event(event)
+
+    except KeyboardInterrupt:
+        log.info("Interrupted.")
+    except OSError as e:
+        log.error(f"Device error: {e}")
+    finally:
+        log.info(
+            f"Shutting down. Dropped {dropped_presses} presses, "
+            f"{dropped_releases} releases."
+        )
+        try:
+            real.ungrab()
+        except Exception:
+            pass
+        ui.close()
+
+
+if __name__ == "__main__":
+    run()

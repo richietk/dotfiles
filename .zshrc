@@ -563,12 +563,13 @@ alias updt="sudo pacman -Syu"
 
 updtpkglist() {
     pacman -Qqe > ~/dotfiles/pkglist.txt
-    cd ~/dotfiles && git add pkglist.txt && git commit -m "update pkglist" && git push
+    cd ~/dotfiles && git add pkglist.txt
     cd -
 }
 
 pushdots() {
     local msg="${1:-update dotfiles}"
+    updtpkglist
     cd ~/dotfiles && git add . && git commit -m "$msg" && git push
     cd -
 }
