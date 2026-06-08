@@ -113,6 +113,7 @@ pnpm
 power-profiles-daemon
 proton-vpn-cli
 pyright
+python-beautifulsoup4
 python-evdev
 python-matplotlib
 python-numpy
@@ -128,6 +129,7 @@ qt5ct
 qt6-doc
 qt6-wayland
 qt6ct
+quantlib
 qview
 rclone
 rkhunter

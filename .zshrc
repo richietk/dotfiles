@@ -359,6 +359,7 @@ contentbak() {
         $HOME/Music
         $HOME/Pictures
         $HOME/Videos
+	$HOME/dotfiles
     )
 
     if [[ "$pack" == true ]]; then
@@ -439,6 +440,7 @@ contentbak_gdrive() {
         $HOME/Music
         $HOME/Pictures
         $HOME/Videos
+	$HOME/dotfiles
     )
 
     if [[ "$pack" == true ]]; then
