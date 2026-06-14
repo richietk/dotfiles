@@ -2,6 +2,7 @@
 alsa-utils
 amd-ucode
 anki
+antigravity
 ark
 asusctl
 base
@@ -29,6 +30,7 @@ exfatprogs
 expac
 fastfetch
 fdupes
+ffmpegthumbnailer
 firefox
 firewalld
 fish
@@ -40,7 +42,6 @@ fzf
 git
 github-cli
 globalprotect-openconnect
-google-chrome
 googledot-cursor-theme
 gparted
 graphviz
@@ -112,8 +113,10 @@ plocate
 pnpm
 power-profiles-daemon
 proton-vpn-cli
+proton-vpn-gtk-app
 pyright
 python-beautifulsoup4
+python-curl_cffi
 python-evdev
 python-matplotlib
 python-numpy
@@ -140,17 +143,13 @@ speech-dispatcher
 speedtest-cli
 spicetify-cli
 sshfs
+stash
 strace
 sudo
 sysstat
 system-config-printer
 tesseract-data-ara
 testdisk
-texlive-basic
-texlive-binextra
-texlive-langenglish
-texlive-latexextra
-texlive-meta
 timeshift
 tk
 tree
@@ -183,6 +182,7 @@ xorg-xinit
 xournalpp
 yay
 yay-debug
+yazi
 yt-dlp
 zenity
 zoxide

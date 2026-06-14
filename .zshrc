@@ -144,6 +144,8 @@ alias htopcopy="copy 'ps auxf'"
 zshcfgsrc() {
   if [[ "$1" == "-v" ]]; then
     nvim ~/.zshrc
+  elif [[ "$1" == "-k" ]]; then
+    kate ~/.zshrc
   else
     nano ~/.zshrc
   fi
@@ -204,11 +206,15 @@ print(f'Top 1 core share      : {shares[0]*100:.1f}%')
 print(f'Top 2 cores share     : {sum(shares[:2])*100:.1f}%')
 print(f'Top 4 cores share     : {sum(shares[:4])*100:.1f}%')
 print(f'Gini                  : {gini:.3f}  (0=even, 1=one core takes all)')
-"
-}
+"}
+
+
+# encryption
+alias ecvault="fusermount3 -u ~/Documents/Vault"
+alias dcvault="gocryptfs ~/.vault-encrypted ~/Documents/Vault && obsidian"
 
 # --- Directory shortcuts ---
-alias ssd='cd /mnt/ssd'
+alias ssd='cd /run/media/richard/7ABF-7932'
 alias richard="cd $HOME"
 alias thesis="cd $HOME/Documents/Thesis"
 alias config='cd ~/.config'
@@ -679,17 +685,81 @@ archive() {
 }
 
 # --- vpn ---
-alias vpnoff="sudo systemctl stop wg-quick@atvpn"
-alias vpnon="sudo systemctl start wg-quick@atvpn"
-alias vpnpfoff="sudo systemctl stop wg-quick@atvpn_pf"
-alias vpnpfon="sudo systemctl start wg-quick@atvpn_pf"
 alias wuvpnon="sudo openconnect --protocol=gp -b vpn.wu.ac.at"
 alias wuvpnoff="sudo pkill openconnect"
 
-# Display current public NAT-PMP port from vpnpfon
-getpport() {
-    sudo vpnpfon >/dev/null 2>&1
+vpnon() {
+    local flag="$1"
+    local conf=""
+    local pf=false
 
+    case "$flag" in
+        -a)   conf="atvpn" ;;
+        -apf) conf="atvpn_pf"; pf=true ;;
+        -h)   conf="huvpn" ;;
+        -hpf) conf="huvpn_pf"; pf=true ;;
+        *)
+            echo "Usage: vpnon [-a|-apf|-h|-hpf]"
+            echo "  -a    Austria VPN"
+            echo "  -apf  Austria VPN with port forwarding"
+            echo "  -h    Hungary VPN"
+            echo "  -hpf  Hungary VPN with port forwarding"
+            return 1
+            ;;
+    esac
+
+    echo "Connecting to $conf..."
+    sudo systemctl start wg-quick@$conf || { echo "Failed to connect to $conf." >&2; return 1; }
+    echo "Connected to $conf."
+    if [[ "$pf" == true ]]; then
+        echo "Public port: $(getpport)"
+    fi
+}
+
+vpnoff() {
+    local active=()
+    local svc
+    for svc in atvpn atvpn_pf huvpn huvpn_pf; do
+        if systemctl is-active --quiet wg-quick@$svc 2>/dev/null; then
+            active+=($svc)
+        fi
+    done
+
+    if (( ${#active[@]} == 0 )); then
+        echo "No WireGuard VPN is active."
+        return 0
+    fi
+
+    for svc in "${active[@]}"; do
+        echo "Disconnecting $svc..."
+        sudo systemctl stop wg-quick@$svc
+    done
+}
+
+editvpn() {
+    local flag="$1"
+    local conf=""
+
+    case "$flag" in
+        -a)   conf="atvpn" ;;
+        -apf) conf="atvpn_pf" ;;
+        -h)   conf="huvpn" ;;
+        -hpf) conf="huvpn_pf" ;;
+        *)
+            echo "Usage: editvpn [-a|-apf|-h|-hpf]"
+            echo "  -a    Austria VPN"
+            echo "  -apf  Austria VPN with port forwarding"
+            echo "  -h    Hungary VPN"
+            echo "  -hpf  Hungary VPN with port forwarding"
+            return 1
+            ;;
+    esac
+
+    sudo nano /etc/wireguard/$conf.conf
+}
+
+# Display current public NAT-PMP port (requires an active pf VPN connection)
+getpport() {
     local port="$(natpmpc -a 1 0 tcp 60 -g 10.2.0.1 2>/dev/null \
         | grep -oP 'Mapped public port \K[0-9]+' \
         | head -n1)"
