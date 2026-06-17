@@ -48,6 +48,7 @@ graphviz
 grub
 gst-plugin-pipewire
 gvfs-afc
+hdparm
 hollywood
 hplip
 htop
@@ -66,6 +67,7 @@ jre-openjdk
 jre8-openjdk
 kalk
 kate
+kdiskmark
 kitty
 kolourpaint
 konsole
