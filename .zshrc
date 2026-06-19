@@ -7,6 +7,9 @@ source $ZSH/oh-my-zsh.sh
 #  Personal zsh config
 # ============================================================
 
+# --- Quickshell ---
+alias qsrestart='pkill qs; sleep 0.5; qs -c ii &'
+
 # --- Hyprland info ---
 alias hmon='hyprctl monitors'
 alias hcl='hyprctl clients'

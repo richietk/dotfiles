@@ -40,8 +40,7 @@ ln -sf "$DOTFILES/.config/deadbeef/config"    ~/.config/deadbeef/config
 ln -sf "$DOTFILES/.config/deadbeef/dspconfig" ~/.config/deadbeef/dspconfig
 
 # mpv
-mkdir -p ~/.config/mpv
-ln -sf "$DOTFILES/.config/mpv/mpv.conf" ~/.config/mpv/mpv.conf
+ln -sfn "$DOTFILES/.config/mpv" ~/.config/mpv
 
 # systemd user service
 mkdir -p ~/.config/systemd/user || { echo "Failed to create ~/.config/systemd/user" >&2; exit 1; }
