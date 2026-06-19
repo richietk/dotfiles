@@ -11,6 +11,7 @@ blueman
 bluez
 bluez-utils
 brightnessctl
+btop
 claude-code
 cliphist
 cmatrix
@@ -42,6 +43,7 @@ fzf
 git
 github-cli
 globalprotect-openconnect
+google-chrome
 googledot-cursor-theme
 gparted
 graphviz

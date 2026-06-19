@@ -2,3 +2,7 @@ Host seedbox
     HostName 2.ein.itsby.design
     User richietk
     IdentityFile ~/.ssh/id_ed25519
+    IdentitiesOnly yes
+    AddKeysToAgent yes
+    ServerAliveInterval 60
+    ServerAliveCountMax 3

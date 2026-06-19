@@ -1,114 +1,10 @@
-# If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
-
-# Path to your Oh My Zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
-
-# Set name of the theme to load --- if set to "random", it will
-# load a random theme each time Oh My Zsh is loaded, in which case,
-# to know which specific one was loaded, run: echo $RANDOM_THEME
-# See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
 ZSH_THEME="robbyrussell"
-
-# Set list of themes to pick from when loading at random
-# Setting this variable when ZSH_THEME=random will cause zsh to load
-# a theme from this variable instead of looking in $ZSH/themes/
-# If set to an empty array, this variable will have no effect.
-# ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
-
-# Uncomment the following line to use case-sensitive completion.
-# CASE_SENSITIVE="true"
-
-# Uncomment the following line to use hyphen-insensitive completion.
-# Case-sensitive completion must be off. _ and - will be interchangeable.
-# HYPHEN_INSENSITIVE="true"
-
-# Uncomment one of the following lines to change the auto-update behavior
-# zstyle ':omz:update' mode disabled  # disable automatic updates
-# zstyle ':omz:update' mode auto      # update automatically without asking
-# zstyle ':omz:update' mode reminder  # just remind me to update when it's time
-
-# Uncomment the following line to change how often to auto-update (in days).
-# zstyle ':omz:update' frequency 13
-
-# Uncomment the following line if pasting URLs and other text is messed up.
-# DISABLE_MAGIC_FUNCTIONS="true"
-
-# Uncomment the following line to disable colors in ls.
-# DISABLE_LS_COLORS="true"
-
-# Uncomment the following line to disable auto-setting terminal title.
-# DISABLE_AUTO_TITLE="true"
-
-# Uncomment the following line to enable command auto-correction.
-# ENABLE_CORRECTION="true"
-
-# Uncomment the following line to display red dots whilst waiting for completion.
-# You can also set it to another string to have that shown instead of the default red dots.
-# e.g. COMPLETION_WAITING_DOTS="%F{yellow}waiting...%f"
-# Caution: this setting can cause issues with multiline prompts in zsh < 5.7.1 (see #5765)
-# COMPLETION_WAITING_DOTS="true"
-
-# Uncomment the following line if you want to disable marking untracked files
-# under VCS as dirty. This makes repository status check for large repositories
-# much, much faster.
-# DISABLE_UNTRACKED_FILES_DIRTY="true"
-
-# Uncomment the following line if you want to change the command execution time
-# stamp shown in the history command output.
-# You can set one of the optional three formats:
-# "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
-# or set a custom format using the strftime function format specifications,
-# see 'man strftime' for details.
-# HIST_STAMPS="mm/dd/yyyy"
-
-# Would you like to use another custom folder than $ZSH/custom?
-# ZSH_CUSTOM=/path/to/new-custom-folder
-
-# Which plugins would you like to load?
-# Standard plugins can be found in $ZSH/plugins/
-# Custom plugins may be added to $ZSH_CUSTOM/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
 plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
-
 source $ZSH/oh-my-zsh.sh
 
-# User configuration
-
-# export MANPATH="/usr/local/man:$MANPATH"
-
-# You may need to manually set your language environment
-# export LANG=en_US.UTF-8
-
-# Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='nvim'
-# fi
-
-# Compilation flags
-# export ARCHFLAGS="-arch $(uname -m)"
-
-# Set personal aliases, overriding those provided by Oh My Zsh libs,
-# plugins, and themes. Aliases can be placed here, though Oh My Zsh
-# users are encouraged to define aliases within a top-level file in
-# the $ZSH_CUSTOM folder, with .zsh extension. Examples:
-# - $ZSH_CUSTOM/aliases.zsh
-# - $ZSH_CUSTOM/macos.zsh
-# For a full list of active aliases, run `alias`.
-#
-# Example aliases
-# alias zshconfig="mate ~/.zshrc"
-# alias ohmyzsh="mate ~/.oh-my-zsh"
-
-
-
 # ============================================================
-#  Personal zsh config — translated from config.fish
-#  Paste everything below into ~/.zshrc, AFTER the line
-#  `source $ZSH/oh-my-zsh.sh` so nothing gets overridden.
+#  Personal zsh config
 # ============================================================
 
 # --- Hyprland info ---
@@ -168,45 +64,9 @@ temps() {
 
 # --- Virtual environment shortcuts ---
 alias venvact='source ~/venv/bin/activate'
-alias venvdeact='deactivate 2>/dev/null || true'
 
 # --- irq balance checker ---
-irqgini() {
-    python3 -c "
-import re
-
-with open('/proc/interrupts') as f:
-    lines = f.readlines()
-
-n_cpus = len(lines[0].split())
-counts = [0] * n_cpus
-
-for line in lines[1:]:
-    if re.search('nvme', line, re.IGNORECASE):
-        parts = line.split()
-        for i in range(n_cpus):
-            try:
-                counts[i] += int(parts[i + 1])
-            except (IndexError, ValueError):
-                pass
-
-total = sum(counts)
-if not total:
-    print('No NVMe interrupts counted')
-    exit(1)
-
-shares = sorted([c / total for c in counts], reverse=True)
-n = len(shares)
-s = sorted(shares)
-gini = 1 - 2 * sum((n - i) * x for i, x in enumerate(s)) / (n * sum(s))
-
-print(f'Total NVMe interrupts : {total:,}')
-print(f'CPUs                  : {n}')
-print(f'Top 1 core share      : {shares[0]*100:.1f}%')
-print(f'Top 2 cores share     : {sum(shares[:2])*100:.1f}%')
-print(f'Top 4 cores share     : {sum(shares[:4])*100:.1f}%')
-print(f'Gini                  : {gini:.3f}  (0=even, 1=one core takes all)')
-"}
+irqgini() { python3 "$HOME/dotfiles/scripts/irqgini.py" "$@"; }
 
 
 # encryption
@@ -214,7 +74,8 @@ alias ecvault="fusermount3 -u ~/Documents/Vault"
 alias dcvault="gocryptfs ~/.vault-encrypted ~/Documents/Vault && obsidian"
 
 # --- Directory shortcuts ---
-alias ssd='cd /run/media/richard/7ABF-7932'
+SSD_MOUNT="/run/media/$USER/7ABF-7932"
+alias ssd='cd "$SSD_MOUNT"'
 alias richard="cd $HOME"
 alias thesis="cd $HOME/Documents/Thesis"
 alias config='cd ~/.config'
@@ -341,165 +202,93 @@ sametest() {
     fi
 }
 
-# Backup to external drive
+# Backup to local SSD (default) or Google Drive (-g flag)
+# Add -p to pack everything into a single tar.gz
 contentbak() {
-    local pack=false
-    local arg
+    local pack=false gdrive=false arg
     for arg in "$@"; do
         [[ "$arg" == "-p" ]] && pack=true
+        [[ "$arg" == "-g" ]] && gdrive=true
     done
 
-    local datestr="$(date +%Y%m%d)"
-    local dest="/run/media/richard/7ABF-7932/backup/content_backups/content_bak_$datestr"
-    if [[ ! -d /run/media/richard/7ABF-7932 ]]; then
-        echo "Drive not mounted."
-        return 1
-    fi
-    mkdir -p "$dest"
-
+    local date_str="$(date +%Y%m%d)"
     local dirs=(
-        $HOME/.config
-        $HOME/Desktop
-        $HOME/Documents
-        $HOME/Downloads
-        $HOME/Music
-        $HOME/Pictures
-        $HOME/Videos
-	$HOME/dotfiles
+        $HOME/.config $HOME/Desktop $HOME/Documents $HOME/Downloads
+        $HOME/Music $HOME/Pictures $HOME/Videos $HOME/dotfiles
     )
-
-    if [[ "$pack" == true ]]; then
-        local tmpfile="/tmp/content_bak_$datestr.tar.gz"
-        echo "Packing everything into a single archive..."
-        tar czf "$tmpfile" \
-            --exclude="$HOME/.config/google-chrome" \
-            --exclude="$HOME/.config/discord" \
-            --exclude="$HOME/.config/mozilla" \
-            --exclude="$HOME/.config/Code" \
-            --exclude="$HOME/.config/libreoffice" \
-            --exclude="$HOME/.config/.venv" \
-            --exclude='*.lock' \
-            "${dirs[@]}"
-        mv "$tmpfile" "$dest/"
-        echo "Done → $dest/content_bak_$datestr.tar.gz"
-    else
-        local dir
-        for dir in "${dirs[@]}"; do
-            echo "Copying $(basename "$dir")..."
-            if [[ "$dir" == $HOME/.config ]]; then
-                rsync -rpt \
-                    --no-links \
-                    --ignore-errors \
-                    --update \
-                    --exclude='*.lock' \
-                    --exclude='google-chrome/' \
-                    --exclude='discord/' \
-                    --exclude='mozilla/' \
-                    --exclude='Code/' \
-                    --exclude='.venv/' \
-                    --exclude='libreoffice/' \
-                    --info=progress2 \
-                    "$dir" "$dest/"
-            else
-                rsync -rpt \
-                    --no-links \
-                    --ignore-errors \
-                    --update \
-                    --exclude='*.lock' \
-                    --info=progress2 \
-                    "$dir" "$dest/"
-            fi
-        done
-        echo "Done → $dest"
-    fi
-}
-
-# Backup to Google Drive via rclone
-contentbak_gdrive() {
-    local pack=false
-    local arg
-    for arg in "$@"; do
-        [[ "$arg" == "-p" ]] && pack=true
-    done
+    local tar_excl=(
+        --exclude="$HOME/.config/google-chrome"
+        --exclude="$HOME/.config/discord"
+        --exclude="$HOME/.config/mozilla"
+        --exclude="$HOME/.config/Code"
+        --exclude="$HOME/.config/libreoffice"
+        --exclude="$HOME/.config/.venv"
+        --exclude='*.lock'
+    )
+    local cfg_rsync_excl=(
+        --exclude='google-chrome/' --exclude='discord/' --exclude='mozilla/'
+        --exclude='Code/' --exclude='libreoffice/' --exclude='.venv/' --exclude='*.lock'
+    )
 
     local remote="gdrive"
-    local date_str="$(date +%Y%m%d)"
-    local dest="${remote}:backup/content_backups/content_bak_${date_str}"
-    local tmpdir="/tmp/contentbak_${date_str}"
-
-    if ! command -v rclone &>/dev/null; then
-        echo "rclone not installed."
-        return 1
-    fi
-    if ! rclone listremotes | grep -q "^${remote}:"; then
-        echo "rclone remote '$remote' not configured. Run: rclone config"
-        return 1
-    fi
-
-    mkdir -p "$tmpdir"
-
-    local dirs=(
-        $HOME/.config
-        $HOME/Desktop
-        $HOME/Documents
-        $HOME/Downloads
-        $HOME/Music
-        $HOME/Pictures
-        $HOME/Videos
-	$HOME/dotfiles
-    )
-
-    if [[ "$pack" == true ]]; then
-        local tmpfile="$tmpdir/content_bak_${date_str}.tar.gz"
-        echo "Packing everything into a single archive..."
-        tar czf "$tmpfile" \
-            --exclude="$HOME/.config/google-chrome" \
-            --exclude="$HOME/.config/discord" \
-            --exclude="$HOME/.config/mozilla" \
-            --exclude="$HOME/.config/Code" \
-            --exclude="$HOME/.config/libreoffice" \
-            --exclude="$HOME/.config/.venv" \
-            --exclude='*.lock' \
-            "${dirs[@]}"
-        echo "Uploading single archive..."
-        rclone copy \
-            --transfers=16 --checkers=32 --drive-chunk-size=64M \
-            --progress \
-            "$tmpfile" "$dest/"
+    local dest
+    if [[ "$gdrive" == true ]]; then
+        dest="${remote}:backup/content_backups/content_bak_${date_str}"
     else
-        echo "Archiving .config..."
-        tar czf "$tmpdir/config.tar.gz" \
-            --exclude="$HOME/.config/google-chrome" \
-            --exclude="$HOME/.config/discord" \
-            --exclude="$HOME/.config/mozilla" \
-            --exclude="$HOME/.config/Code" \
-            --exclude="$HOME/.config/libreoffice" \
-            --exclude='*.lock' \
-            $HOME/.config
-        echo "Uploading .config.tar.gz..."
-        rclone copy \
-            --transfers=16 --checkers=32 --drive-chunk-size=64M \
-            --progress \
-            "$tmpdir/config.tar.gz" "$dest/"
-
-        local dir
-        for dir in $dirs[2,-1]; do      # everything except .config (1-indexed slice)
-            echo "Uploading $(basename "$dir")..."
-            rclone copy \
-                --links=false \
-                --ignore-errors \
-                --update \
-                --exclude='*.lock' \
-                --exclude='.venv/' \
-                --transfers=16 \
-                --checkers=32 \
-                --drive-chunk-size=64M \
-                --progress \
-                "$dir" "$dest/$(basename "$dir")/"
-        done
+        dest="$SSD_MOUNT/backup/content_backups/content_bak_${date_str}"
     fi
 
-    rm -rf "$tmpdir"
+    if [[ "$gdrive" == true ]]; then
+        command -v rclone &>/dev/null || { echo "rclone not installed." >&2; return 1; }
+        rclone listremotes | grep -q "^${remote}:" \
+            || { echo "rclone remote '$remote' not configured. Run: rclone config" >&2; return 1; }
+
+        local tmpdir="/tmp/contentbak_${date_str}"
+        mkdir -p "$tmpdir"
+
+        if [[ "$pack" == true ]]; then
+            echo "Packing archive..."
+            tar czf "$tmpdir/content_bak_${date_str}.tar.gz" "${tar_excl[@]}" "${dirs[@]}"
+            rclone copy --transfers=16 --checkers=32 --drive-chunk-size=64M --progress \
+                "$tmpdir/content_bak_${date_str}.tar.gz" "$dest/"
+        else
+            echo "Archiving .config..."
+            tar czf "$tmpdir/config.tar.gz" "${tar_excl[@]}" $HOME/.config
+            rclone copy --transfers=16 --checkers=32 --drive-chunk-size=64M --progress \
+                "$tmpdir/config.tar.gz" "$dest/"
+            local dir
+            for dir in "${dirs[@]:1}"; do
+                echo "Uploading $(basename "$dir")..."
+                rclone copy --links=false --ignore-errors --update \
+                    --exclude='*.lock' --exclude='.venv/' \
+                    --transfers=16 --checkers=32 --drive-chunk-size=64M --progress \
+                    "$dir" "$dest/$(basename "$dir")/"
+            done
+        fi
+        rm -rf "$tmpdir"
+    else
+        [[ -d "$SSD_MOUNT" ]] || { echo "Drive not mounted at $SSD_MOUNT." >&2; return 1; }
+        mkdir -p "$dest"
+
+        if [[ "$pack" == true ]]; then
+            local tmpfile="/tmp/content_bak_${date_str}.tar.gz"
+            echo "Packing archive..."
+            tar czf "$tmpfile" "${tar_excl[@]}" "${dirs[@]}"
+            mv "$tmpfile" "$dest/"
+        else
+            local dir
+            for dir in "${dirs[@]}"; do
+                echo "Copying $(basename "$dir")..."
+                if [[ "$dir" == $HOME/.config ]]; then
+                    rsync -rpt --no-links --ignore-errors --update \
+                        "${cfg_rsync_excl[@]}" --info=progress2 "$dir" "$dest/"
+                else
+                    rsync -rpt --no-links --ignore-errors --update \
+                        --exclude='*.lock' --info=progress2 "$dir" "$dest/"
+                fi
+            done
+        fi
+    fi
     echo "Done → $dest"
 }
 
@@ -595,6 +384,7 @@ ff() {
 
 # Copy a file's contents, or a command's output, to the clipboard
 copy() {
+    command -v wl-copy &>/dev/null || { echo "wl-copy not found" >&2; return 1; }
     if [[ -f "$1" ]]; then
         wl-copy < "$1"
     else
