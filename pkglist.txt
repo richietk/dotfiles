@@ -94,6 +94,7 @@ mc
 meson
 mousepad
 mpv
+mpv-mpris
 mtr
 nano
 nbfc-linux

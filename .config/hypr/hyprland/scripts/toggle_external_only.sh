@@ -11,9 +11,9 @@ print('true' if m and m.get('disabled') else 'false')
 ")
 
 if [ "$IS_DISABLED" = "true" ]; then
-    # Re-enable built-in, put external back to the right
-    hyprctl eval "hl.monitor({ output = '$BUILTIN', mode = '2880x1800@90', position = '0x0', scale = 1, disabled = false })"
-    hyprctl eval "hl.monitor({ output = '$EXTERNAL', mode = '1920x1080@60', position = '2880x0', scale = 1 })"
+    # Re-enable built-in (scale=2, logical width=1440), put external to the right at x=1440
+    hyprctl eval "hl.monitor({ output = '$BUILTIN', mode = '2880x1800@90', position = '0x0', scale = 2, disabled = false })"
+    hyprctl eval "hl.monitor({ output = '$EXTERNAL', mode = '1920x1080@60', position = '1440x0', scale = 1 })"
 else
     # Disable built-in, move external to 0x0
     hyprctl eval "hl.monitor({ output = '$BUILTIN', disabled = true })"
