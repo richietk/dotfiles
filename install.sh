@@ -13,7 +13,37 @@ done
 
 echo "==> Symlinking user configs..."
 ln -sf "$DOTFILES/.zshrc" ~/.zshrc
+
+# KDE Plasma
+ln -sf "$DOTFILES/.config/kglobalshortcutsrc"                        ~/.config/kglobalshortcutsrc
+ln -sf "$DOTFILES/.config/kwinrc"                                     ~/.config/kwinrc
+ln -sf "$DOTFILES/.config/kdeglobals"                                 ~/.config/kdeglobals
+ln -sf "$DOTFILES/.config/plasmashellrc"                              ~/.config/plasmashellrc
+ln -sf "$DOTFILES/.config/plasma-org.kde.plasma.desktop-appletsrc"   ~/.config/plasma-org.kde.plasma.desktop-appletsrc
+ln -sf "$DOTFILES/.config/katerc"                                     ~/.config/katerc
+ln -sf "$DOTFILES/.config/katevirc"                                   ~/.config/katevirc
+
+# Hyprland
 ln -sf "$DOTFILES/.config/hypr/hyprland.conf" ~/.config/hypr/hyprland.conf
+
+# Double Commander
+mkdir -p ~/.config/doublecmd
+ln -sf "$DOTFILES/.config/doublecmd/doublecmd.xml"    ~/.config/doublecmd/doublecmd.xml
+ln -sf "$DOTFILES/.config/doublecmd/shortcuts.scf"    ~/.config/doublecmd/shortcuts.scf
+ln -sf "$DOTFILES/.config/doublecmd/colors.json"      ~/.config/doublecmd/colors.json
+ln -sf "$DOTFILES/.config/doublecmd/highlighters.xml" ~/.config/doublecmd/highlighters.xml
+ln -sf "$DOTFILES/.config/doublecmd/multiarc.ini"     ~/.config/doublecmd/multiarc.ini
+
+# DeadBeeF
+mkdir -p ~/.config/deadbeef
+ln -sf "$DOTFILES/.config/deadbeef/config"    ~/.config/deadbeef/config
+ln -sf "$DOTFILES/.config/deadbeef/dspconfig" ~/.config/deadbeef/dspconfig
+
+# mpv
+mkdir -p ~/.config/mpv
+ln -sf "$DOTFILES/.config/mpv/mpv.conf" ~/.config/mpv/mpv.conf
+
+# systemd user service
 mkdir -p ~/.config/systemd/user || { echo "Failed to create ~/.config/systemd/user" >&2; exit 1; }
 ln -sf "$DOTFILES/.config/systemd/user/touchpad-filter.service" \
        ~/.config/systemd/user/touchpad-filter.service

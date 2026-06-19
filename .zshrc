@@ -607,3 +607,23 @@ toppct() {
 }
 
 alias largestls='ls -lhS'
+
+# --- KDE Plasma usage stats ---
+alias plasma-counts="sqlite3 ~/.local/share/kactivitymanagerd/resources/database \
+    \"SELECT initiatingAgent, COUNT(*) as launch_count \
+    FROM ResourceEvent \
+    WHERE initiatingAgent NOT LIKE 'org.kde.plasma%' \
+    AND initiatingAgent NOT LIKE 'org.kde.libtaskmanager' \
+    AND initiatingAgent NOT LIKE 'org.kde.krunner' \
+    AND initiatingAgent NOT LIKE '%desktop-portal%' \
+    GROUP BY initiatingAgent ORDER BY launch_count DESC;\""
+
+alias plasma-scores="sqlite3 ~/.local/share/kactivitymanagerd/resources/database \
+    \"SELECT initiatingAgent, targettedResource, cachedScore \
+    FROM ResourceScoreCache \
+    WHERE scoreType = 0 \
+    AND initiatingAgent NOT LIKE 'org.kde.plasma%' \
+    AND initiatingAgent NOT LIKE 'org.kde.libtaskmanager' \
+    AND initiatingAgent NOT LIKE 'org.kde.krunner' \
+    AND initiatingAgent NOT LIKE '%desktop-portal%' \
+    ORDER BY cachedScore DESC LIMIT 15;\""
