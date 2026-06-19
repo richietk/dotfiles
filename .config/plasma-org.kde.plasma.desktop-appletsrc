@@ -250,7 +250,7 @@ DialogWidth=1920
 [Containments][36][General]
 changedPositions={}
 lastResolution=1920x1080
-positions={"1440x900":["1","13","desktop:/asd.txt","0","0"],"1920x1080":["1","17","desktop:/a","0","1","desktop:/asd.txt","0","0"],"1920x1200":["1","17","desktop:/arch-notes.txt","0","0","desktop:/diagnosis.txt","0","9","desktop:/output.txt","0","8","desktop:/asd","0","3","desktop:/failure_questions.ods","0","1","desktop:/spotify.desktop","0","2","desktop:/extra.txt","0","6","desktop:/minder_msmarco_anal.txt","0","4","desktop:/background.txt","0","5","desktop:/kerneltree.txt","0","7"]}
+positions={"1440x900":["1","13","desktop:/asd.txt","0","0"],"1920x1080":["1","17","desktop:/asd.txt","0","0","desktop:/a","0","1"],"1920x1200":["1","17","desktop:/arch-notes.txt","0","0","desktop:/diagnosis.txt","0","9","desktop:/output.txt","0","8","desktop:/asd","0","3","desktop:/failure_questions.ods","0","1","desktop:/spotify.desktop","0","2","desktop:/extra.txt","0","6","desktop:/minder_msmarco_anal.txt","0","4","desktop:/background.txt","0","5","desktop:/kerneltree.txt","0","7"]}
 sortMode=-1
 
 [Containments][36][Wallpaper][a2n.blur][General]
@@ -439,5 +439,5 @@ launchers=applications:doublecmd.desktop,applications:obsidian.desktop,applicati
 AppletOrder=41;42;63;43;44;61;62
 
 [ScreenMapping]
-itemsOnDisabledScreens=1,7bb900f4-0e4a-4ecd-8286-e707d7e1084d,12,desktop:/Anmeldebescheinigung1.jpg,desktop:/a,desktop:/a.txt,desktop:/backup.txt,desktop:/asus-diagnose-20260306-221142.txt,desktop:/stuff,desktop:/takacs_presentation_thesis.odp,desktop:/vorstellung.txt,desktop:/takacs_presentation_thesis.pptx,desktop:/arch-notes.txt,desktop:/sth_with_irq.txt,desktop:/minder_run_config_thesis.txt
+itemsOnDisabledScreens=1,7bb900f4-0e4a-4ecd-8286-e707d7e1084d,12,desktop:/asus-diagnose-20260306-221142.txt,desktop:/arch-notes.txt,desktop:/stuff,desktop:/a.txt,desktop:/vorstellung.txt,desktop:/takacs_presentation_thesis.pptx,desktop:/Anmeldebescheinigung1.jpg,desktop:/backup.txt,desktop:/sth_with_irq.txt,desktop:/takacs_presentation_thesis.odp,desktop:/minder_run_config_thesis.txt,desktop:/a
 screenMapping=file:///home/richard/Desktop/Link to Application.desktop,0,7bb900f4-0e4a-4ecd-8286-e707d7e1084d,desktop:/a,0,7bb900f4-0e4a-4ecd-8286-e707d7e1084d,desktop:/asd.txt,0,7bb900f4-0e4a-4ecd-8286-e707d7e1084d

@@ -24,7 +24,7 @@ ln -sf "$DOTFILES/.config/katerc"                                     ~/.config/
 ln -sf "$DOTFILES/.config/katevirc"                                   ~/.config/katevirc
 
 # Hyprland
-ln -sf "$DOTFILES/.config/hypr/hyprland.conf" ~/.config/hypr/hyprland.conf
+ln -sfn "$DOTFILES/.config/hypr" ~/.config/hypr
 
 # Double Commander
 mkdir -p ~/.config/doublecmd
