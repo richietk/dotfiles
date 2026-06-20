@@ -21,6 +21,63 @@ alias hkill='hyprctl kill'          # click to kill a window
 alias hver='hyprctl version'
 alias hcf="nano $HOME/.config/hypr/hyprland.conf"
 
+# --- mem users ---
+alias memusers='ps axo rss,comm --sort=-rss | head -n 6 | awk '\''NR==1 {print $1, $2; next} {printf "%.2f MB\t%s\n", $1/1024, $2}'\'''
+alias memuserspriv='ps axo pid,comm --sort=-rss | head -n 6 | awk '\''NR==1 {next} {print $1, $2}'\'' | while read pid name; do priv=$(awk '\''/^Private_Dirty/{sum+=$2} END{printf "%.2f MB", sum/1024}'\'' /proc/$pid/smaps 2>/dev/null); echo "$priv\t$name"; done | sort -rn'
+
+# --- Disk mount/unmount ---
+mntdisk() {
+    local disks=()
+    local i=1
+    echo "Unmounted partitions:"
+    while IFS= read -r line; do
+        disks+=("$line")
+        echo "  $i) $line"
+        (( i++ ))
+    done < <(lsblk -rpo NAME,TYPE,SIZE,MOUNTPOINT | awk '$2=="part" && $4=="" {print $1, $3}')
+
+    if (( ${#disks[@]} == 0 )); then
+        echo "No unmounted partitions found."
+        return 1
+    fi
+
+    local choice
+    read "choice?Pick number: "
+    if ! [[ "$choice" =~ ^[0-9]+$ ]] || (( choice < 1 || choice > ${#disks[@]} )); then
+        echo "Invalid choice."
+        return 1
+    fi
+
+    local dev="${disks[$choice]%% *}"
+    udisksctl mount -b "$dev"
+}
+
+unmntdisk() {
+    local disks=()
+    local i=1
+    echo "Mounted partitions:"
+    while IFS= read -r line; do
+        disks+=("$line")
+        echo "  $i) $line"
+        (( i++ ))
+    done < <(lsblk -rpo NAME,TYPE,SIZE,MOUNTPOINT | awk '$2=="part" && $4!="" && $4!="/" && $4!~/^\/(boot|home|var|tmp|run|sys|proc|efi)/ {print $1, $3, $4}')
+
+    if (( ${#disks[@]} == 0 )); then
+        echo "No unmountable partitions found."
+        return 1
+    fi
+
+    local choice
+    read "choice?Pick number: "
+    if ! [[ "$choice" =~ ^[0-9]+$ ]] || (( choice < 1 || choice > ${#disks[@]} )); then
+        echo "Invalid choice."
+        return 1
+    fi
+
+    local dev="${disks[$choice]%% *}"
+    udisksctl unmount -b "$dev"
+}
+
 # --- zoxide ---
 eval "$(zoxide init zsh)"
 

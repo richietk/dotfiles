@@ -26,6 +26,9 @@ ln -sf "$DOTFILES/.config/katevirc"                                   ~/.config/
 # Hyprland
 ln -sfn "$DOTFILES/.config/hypr" ~/.config/hypr
 
+# Kitty
+ln -sfn "$DOTFILES/.config/kitty" ~/.config/kitty
+
 # Double Commander
 mkdir -p ~/.config/doublecmd
 ln -sf "$DOTFILES/.config/doublecmd/doublecmd.xml"    ~/.config/doublecmd/doublecmd.xml

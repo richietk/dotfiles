@@ -5,7 +5,7 @@
       FilePanel : {
         CursorBorderColor : -2147483635,
         ForeColor : -2147483640,
-        BackColor : -2147483643,
+        BackColor : 16777215,
         BackColor2 : -2147483643,
         MarkColor : 255,
         CursorColor : -2147483635,

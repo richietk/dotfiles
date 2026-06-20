@@ -158,7 +158,7 @@
   </Toolbars>
   <MainWindow>
     <Position Save="True">
-      <Left>80</Left>
+      <Left>0</Left>
       <Top>0</Top>
       <Width>955</Width>
       <Height>1008</Height>
@@ -479,7 +479,7 @@
     </MultiRename>
   </FileOperations>
   <Tabs>
-    <Options>54033</Options>
+    <Options>49937</Options>
     <CharacterLimit>32</CharacterLimit>
     <Position>0</Position>
     <ActionOnDoubleClick>2</ActionOnDoubleClick>
