@@ -262,9 +262,60 @@ sametest() {
     fi
 }
 
+# Backup using restic — local SSD (default) or Google Drive (-g flag)
+# Repos: $SSD_MOUNT/backup/restic_repo  or  rclone:gdrive:backup/restic_repo
+# Retention: 7 daily, 4 weekly, 6 monthly snapshots kept after each run.
+contentbak() {
+    local gdrive=false arg
+    for arg in "$@"; do
+        [[ "$arg" == "-g" ]] && gdrive=true
+    done
+
+    local repo
+    if [[ "$gdrive" == true ]]; then
+        command -v rclone &>/dev/null || { echo "rclone not installed." >&2; return 1; }
+        rclone listremotes | grep -q "^gdrive:" \
+            || { echo "rclone remote 'gdrive' not configured. Run: rclone config" >&2; return 1; }
+        repo="rclone:gdrive:backup/restic_repo"
+    else
+        [[ -d "$SSD_MOUNT" ]] || { echo "Drive not mounted at $SSD_MOUNT." >&2; return 1; }
+        repo="$SSD_MOUNT/backup/restic_repo"
+    fi
+
+    local sources=(
+        $HOME/.config $HOME/Desktop $HOME/Documents $HOME/Downloads
+        $HOME/Music $HOME/Pictures $HOME/Videos $HOME/dotfiles
+    )
+    local excludes=(
+        --exclude "$HOME/.config/google-chrome"
+        --exclude "$HOME/.config/discord"
+        --exclude "$HOME/.config/mozilla"
+        --exclude "$HOME/.config/Code"
+        --exclude "$HOME/.config/libreoffice"
+        --exclude "$HOME/.config/.venv"
+        --exclude "**/.venv/"
+        --exclude "*.lock"
+    )
+
+    # Init repo on first use
+    if ! restic -r "$repo" snapshots -q 2>/dev/null; then
+        echo "Initializing restic repo at $repo..."
+        restic -r "$repo" init || return 1
+    fi
+
+    echo "Backing up to $repo..."
+    restic -r "$repo" backup --verbose "${excludes[@]}" "${sources[@]}" || return 1
+
+    echo "Pruning old snapshots..."
+    restic -r "$repo" forget --keep-last 10 --prune
+
+    echo "Done → $repo"
+}
+
+# Old rsync/rclone-based backup (kept for reference)
 # Backup to local SSD (default) or Google Drive (-g flag)
 # Add -p to pack everything into a single tar.gz
-contentbak() {
+contentbak_old() {
     local pack=false gdrive=false arg
     for arg in "$@"; do
         [[ "$arg" == "-p" ]] && pack=true

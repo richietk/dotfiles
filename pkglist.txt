@@ -142,6 +142,7 @@ qt6ct
 quantlib
 qview
 rclone
+restic
 rkhunter
 rofi
 smartmontools
@@ -150,7 +151,6 @@ speech-dispatcher
 speedtest-cli
 spicetify-cli
 sshfs
-stash
 strace
 sudo
 sysstat
