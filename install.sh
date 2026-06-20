@@ -14,6 +14,10 @@ done
 echo "==> Symlinking user configs..."
 ln -sf "$DOTFILES/.zshrc" ~/.zshrc
 
+# Claude Code
+mkdir -p ~/.claude
+ln -sf "$DOTFILES/.claude/settings.json" ~/.claude/settings.json
+
 # KDE Plasma
 ln -sf "$DOTFILES/.config/kglobalshortcutsrc"                        ~/.config/kglobalshortcutsrc
 ln -sf "$DOTFILES/.config/kwinrc"                                     ~/.config/kwinrc

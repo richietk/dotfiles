@@ -1,0 +1,13 @@
+{
+  "skipDangerousModePermissionPrompt": true,
+  "theme": "light",
+  "permissions": {
+    "allow": [
+      "Bash(ls *)",
+      "Bash(cat *)",
+      "Bash(cd *)",
+      "Bash(grep *)",
+      "Bash(wc *)"
+    ]
+  }
+}

@@ -60,7 +60,7 @@ unmntdisk() {
         disks+=("$line")
         echo "  $i) $line"
         (( i++ ))
-    done < <(lsblk -rpo NAME,TYPE,SIZE,MOUNTPOINT | awk '$2=="part" && $4!="" && $4!="/" && $4!~/^\/(boot|home|var|tmp|run|sys|proc|efi)/ {print $1, $3, $4}')
+    done < <(lsblk -rpo NAME,TYPE,SIZE,MOUNTPOINT | awk '$2=="part" && $4!="" && $4!="/" && $4!~/^\/(boot|home|var|tmp|run\/user|run\/lock|sys|proc|efi)/ {print $1, $3, $4}')
 
     if (( ${#disks[@]} == 0 )); then
         echo "No unmountable partitions found."
@@ -428,6 +428,7 @@ alias bloff='bluetoothctl power off'
 
 # --- Screen shortcut ---
 alias sco="dbus-send --session --print-reply --dest=org.kde.kglobalaccel /component/org_kde_powerdevil org.kde.kglobalaccel.Component.invokeShortcut string:'Turn Off Screen'"
+alias hyprsco="sleep 1 && hyprctl dispatch 'hl.dsp.dpms({ action = \"disable\" })'"
 
 cleanpkgs() {
     sudo pacman -Rns ${(f)"$(pacman -Qdtq)"}
