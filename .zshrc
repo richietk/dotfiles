@@ -470,6 +470,38 @@ cleanup() {
 
 alias updt="sudo pacman -Syu"
 
+sysmaint() {
+    echo "==> Running pacman update..."
+    sudo pacman -Syu || { echo "pacman -Syu failed." >&2; return 1; }
+
+    echo "==> Updating package list..."
+    updtpkglist
+
+    echo "==> Cleaning orphaned packages and cache..."
+    cleanpkgs
+
+    echo "==> Pushing dotfiles..."
+    pushdots
+
+    local ans
+    read "ans?Run yay -Syu? [y/N] "
+    if [[ "$ans" == [Yy] ]]; then
+        yay -Syu
+    fi
+
+    read "ans?Run contentbak (local SSD backup)? [y/N] "
+    if [[ "$ans" == [Yy] ]]; then
+        contentbak
+    fi
+
+    read "ans?Run contentbak -g (Google Drive backup)? [y/N] "
+    if [[ "$ans" == [Yy] ]]; then
+        contentbak -g
+    fi
+
+    echo "==> sysmaint done."
+}
+
 updtpkglist() {
     pacman -Qqe > ~/dotfiles/pkglist.txt
     cd ~/dotfiles && git add pkglist.txt
@@ -616,6 +648,7 @@ vpnon() {
     if [[ "$pf" == true ]]; then
         echo "Public port: $(getpport)"
     fi
+    sleep 3 && myip
 }
 
 vpnoff() {
@@ -636,6 +669,7 @@ vpnoff() {
         echo "Disconnecting $svc..."
         sudo systemctl stop wg-quick@$svc
     done
+    sleep 3 && myip
 }
 
 editvpn() {
