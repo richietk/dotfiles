@@ -188,6 +188,7 @@ qt6-virtualkeyboard
 qt6-wayland
 qt6ct
 quantlib
+quickshell-git
 qview
 rclone
 restic
