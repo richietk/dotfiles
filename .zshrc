@@ -471,8 +471,12 @@ cleanup() {
 alias updt="sudo pacman -Syu"
 
 sysmaint() {
-    echo "==> Running pacman update..."
-    sudo pacman -Syu || { echo "pacman -Syu failed." >&2; return 1; }
+    local ans
+
+    read "ans?Run pacman -Syu? [y/N] "
+    if [[ "$ans" == [Yy] ]]; then
+        sudo pacman -Syu || { echo "pacman -Syu failed." >&2; return 1; }
+    fi
 
     echo "==> Updating package list..."
     updtpkglist
@@ -483,7 +487,6 @@ sysmaint() {
     echo "==> Pushing dotfiles..."
     pushdots
 
-    local ans
     read "ans?Run yay -Syu? [y/N] "
     if [[ "$ans" == [Yy] ]]; then
         yay -Syu

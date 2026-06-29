@@ -1,7 +1,39 @@
+"""
+Bitwarden Vault Analyzer — Password-Protected JSON Export Edition
+-----------------------------------------------------------------
+Requirements:
+    pip install cryptography pandas
+    pip install argon2-cffi   # only needed if your account uses Argon2id KDF
+
+How to export:
+    1. Go to vault.bitwarden.eu → Tools → Export Vault
+    2. File Format → .json (Encrypted)
+    3. Export type → Password protected   ← NOT "Account restricted"
+    4. Enter a password of your choice (remember it; the script will ask for it)
+    5. Save to ~/Downloads/  — filename will be bitwarden_encrypted_export_YYYYMMDDHHMMSS.json
+"""
+
 import os
 import glob
-import pandas as pd
+import json
+import base64
+import getpass
 import argparse
+
+import pandas as pd
+
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from cryptography.hazmat.primitives.kdf.hkdf import HKDFExpand
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives import hmac as crypto_hmac
+from cryptography.hazmat.primitives import padding
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.exceptions import InvalidSignature
+
+
+# ---------------------------------------------------------------------------
+# Masking
+# ---------------------------------------------------------------------------
 
 def mask_string(s):
     """Masks a string to hide sensitive info, leaving only first and last characters."""
@@ -11,67 +43,193 @@ def mask_string(s):
         return "*" * len(s)
     return s[0] + "*" * (len(s) - 2) + s[-1]
 
+
+# ---------------------------------------------------------------------------
+# Bitwarden decryption helpers
+# ---------------------------------------------------------------------------
+
+def _derive_keys(password: str, salt_b64: str, kdf_type: int, rounds: int,
+                 kdf_memory=None, kdf_parallelism=None):
+    """
+    Derive AES-256 encryption key and HMAC-SHA256 MAC key from the export password.
+
+    kdf_type 0 = PBKDF2-SHA256 (most accounts)
+    kdf_type 1 = Argon2id       (accounts that switched to Argon2id)
+    """
+    # Bitwarden uses the salt string as-is (UTF-8 encoded), NOT base64-decoded.
+    # It treats the salt field the same way it treats email in normal vault decryption.
+    salt = salt_b64.encode("utf-8")
+
+    if kdf_type == 0:
+        kdf = PBKDF2HMAC(
+            algorithm=hashes.SHA256(),
+            length=32,
+            salt=salt,
+            iterations=rounds,
+        )
+        pre_key = kdf.derive(password.encode("utf-8"))
+
+    elif kdf_type == 1:
+        try:
+            from argon2.low_level import hash_secret_raw, Type
+        except ImportError:
+            raise ImportError(
+                "Your account uses Argon2id. "
+                "Install the extra dependency: pip install argon2-cffi"
+            )
+        pre_key = hash_secret_raw(
+            secret=password.encode("utf-8"),
+            salt=salt,
+            time_cost=rounds,
+            memory_cost=kdf_memory,      # KiB
+            parallelism=kdf_parallelism,
+            hash_len=32,
+            type=Type.ID,
+        )
+    else:
+        raise ValueError(f"Unknown KDF type in export: {kdf_type}")
+
+    # HKDF-Expand: separate enc and mac keys from the single pre-key
+    enc_key = HKDFExpand(algorithm=hashes.SHA256(), length=32, info=b"enc").derive(pre_key)
+    mac_key = HKDFExpand(algorithm=hashes.SHA256(), length=32, info=b"mac").derive(pre_key)
+    return enc_key, mac_key
+
+
+def _decrypt_cipher_string(cipher_string: str, enc_key: bytes, mac_key: bytes) -> bytes:
+    """
+    Decrypt a Bitwarden AesCbc256_HmacSha256_B64 cipher string.
+    Format: '2.<IV_b64>|<CT_b64>|<MAC_b64>'
+    """
+    enc_type, rest = cipher_string.split(".", 1)
+    if enc_type != "2":
+        raise ValueError(f"Unsupported Bitwarden encryption type: {enc_type}")
+
+    iv_b64, ct_b64, mac_b64 = rest.split("|")
+    iv  = base64.b64decode(iv_b64)
+    ct  = base64.b64decode(ct_b64)
+    mac = base64.b64decode(mac_b64)
+
+    # Verify integrity before decrypting
+    h = crypto_hmac.HMAC(mac_key, hashes.SHA256())
+    h.update(iv + ct)
+    h.verify(mac)   # raises InvalidSignature on mismatch
+
+    # AES-256-CBC decrypt
+    cipher    = Cipher(algorithms.AES(enc_key), modes.CBC(iv))
+    decryptor = cipher.decryptor()
+    padded    = decryptor.update(ct) + decryptor.finalize()
+
+    # Strip PKCS7 padding
+    unpadder  = padding.PKCS7(128).unpadder()
+    return unpadder.update(padded) + unpadder.finalize()
+
+
+def load_vault_from_encrypted_export(filepath: str) -> dict:
+    """
+    Open a Bitwarden *password-protected* JSON export, prompt for the
+    export password, decrypt, and return the parsed vault dict.
+    """
+    with open(filepath, "r", encoding="utf-8") as f:
+        export = json.load(f)
+
+    if not export.get("encrypted") or not export.get("passwordProtected"):
+        raise ValueError(
+            "This file is not a password-protected Bitwarden export.\n"
+            "Make sure you chose 'Password protected' (not 'Account restricted') when exporting."
+        )
+
+    password = getpass.getpass("Enter the Bitwarden export password: ")
+
+    enc_key, mac_key = _derive_keys(
+        password,
+        export["salt"],
+        export.get("kdfType", 0),
+        export["kdfIterations"],
+        export.get("kdfMemory"),
+        export.get("kdfParallelism"),
+    )
+
+    # Quick password check — Bitwarden embeds a known-plaintext validation field
+    try:
+        _decrypt_cipher_string(export["encKeyValidation_DO_NOT_EDIT"], enc_key, mac_key)
+    except (InvalidSignature, Exception):
+        raise ValueError("Wrong password (or the export file is corrupted).")
+
+    plaintext = _decrypt_cipher_string(export["data"], enc_key, mac_key)
+    return json.loads(plaintext.decode("utf-8"))
+
+
+def vault_to_dataframe(vault: dict) -> pd.DataFrame:
+    """
+    Convert the decrypted vault JSON into a DataFrame with the same
+    column names the old CSV-based script used.
+    """
+    rows = []
+    for item in vault.get("items", []):
+        if item.get("type") != 1:   # 1 = Login; skip cards, notes, identities
+            continue
+        login    = item.get("login") or {}
+        uris     = login.get("uris") or []
+        uri      = uris[0].get("uri", "") if uris else ""
+        rows.append({
+            "name":           item.get("name", ""),
+            "login_uri":      uri,
+            "login_username": login.get("username") or "",
+            "login_password": login.get("password") or "",
+        })
+    return pd.DataFrame(rows)
+
+
+# ---------------------------------------------------------------------------
+# Analysis (same logic as before, different data source)
+# ---------------------------------------------------------------------------
+
 def analyze_bitwarden_export(obfuscate=False):
-    # Define the pattern to find the export files
-    file_pattern = '/home/richard/Downloads/bitwarden_export_*.csv'
-    
-    # Get all files matching the pattern
+    file_pattern = "/home/richard/Downloads/bitwarden_encrypted_export_*.json"
+
     files = glob.glob(file_pattern)
     if not files:
-        print(f"No files found matching the pattern: {file_pattern}")
+        print(f"No files found matching: {file_pattern}")
         return
 
-    # Find the most recently modified file to handle variable dates
     latest_file = max(files, key=os.path.getmtime)
     print(f"Analyzing file: {latest_file}\n")
     print("-" * 50)
 
-    # Load the CSV
     try:
-        df = pd.read_csv(latest_file)
+        vault = load_vault_from_encrypted_export(latest_file)
+        df    = vault_to_dataframe(vault)
+    except ValueError as e:
+        print(f"Error: {e}")
+        return
     except Exception as e:
-        print(f"Error reading the CSV file: {e}")
+        print(f"Unexpected error: {e}")
         return
 
     # Filter out entries without a login_uri
-    df = df[df['login_uri'].notna() & (df['login_uri'].str.strip() != '')]
+    df = df[df["login_uri"].notna() & (df["login_uri"].str.strip() != "")]
     total_entries = len(df)
 
     if total_entries == 0:
         print("No entries found with a valid login_uri.")
         return
 
-    # Calculate Total unique websites based on "name"
-    total_unique_websites = df['name'].nunique()
+    total_unique_websites  = df["name"].nunique()
+    total_unique_usernames = df["login_username"].nunique()
+    total_unique_passwords = df["login_password"].nunique()
 
-    # Calculate Total number of unique usernames and passwords
-    total_unique_usernames = df['login_username'].nunique()
-    total_unique_passwords = df['login_password'].nunique()
-
-    # Calculate Averages
     avg_entries_per_username = total_entries / total_unique_usernames if total_unique_usernames else 0
     avg_entries_per_password = total_entries / total_unique_passwords if total_unique_passwords else 0
 
-    # Fill NaNs with empty strings for accurate grouping of pairs
-    df_filled = df.fillna({'login_username': '', 'login_password': ''})
-    
-    # Calculate Unique Username-Password pairs
-    unique_pairs_count = len(df_filled.groupby(['login_username', 'login_password']))
-    
-    # Ratio of unique pairs to total entries (total pairs)
+    df_filled          = df.fillna({"login_username": "", "login_password": ""})
+    unique_pairs_count = len(df_filled.groupby(["login_username", "login_password"]))
     unique_pairs_ratio = unique_pairs_count / total_entries
 
-    # Top 5 most used usernames
-    top_5_usernames = df['login_username'].value_counts(normalize=True).head(5) * 100
+    top_5_usernames = df["login_username"].value_counts(normalize=True).head(5) * 100
+    top_5_passwords = df["login_password"].value_counts(normalize=True).head(5) * 100
+    combo_counts    = df_filled.groupby(["login_username", "login_password"]).size().sort_values(ascending=False)
+    top_5_combos    = combo_counts.head(5)
 
-    # Top 5 most used passwords
-    top_5_passwords = df['login_password'].value_counts(normalize=True).head(5) * 100
-
-    # Top 5 most used username-password combinations
-    combo_counts = df_filled.groupby(['login_username', 'login_password']).size().sort_values(ascending=False)
-    top_5_combos = combo_counts.head(5)
-
-    # --- Print Results to Terminal ---
     print(f"Total entries (that has a login_uri): {total_entries}")
     print(f"Total unique websites based on 'name': {total_unique_websites}")
     print(f"Total number of unique 'login_username' used: {total_unique_usernames}")
@@ -95,26 +253,30 @@ def analyze_bitwarden_export(obfuscate=False):
     for (username, password), count in top_5_combos.items():
         display_user = mask_string(username) if obfuscate else username
         display_pass = mask_string(password) if obfuscate else password
-        percentage = (count / total_entries) * 100
+        percentage   = (count / total_entries) * 100
         print(f"  - User: '{display_user}' | Pass: '{display_pass}' -> {percentage:.2f}% ({count} total uses)")
 
     print()
     answer = input(f"Delete '{latest_file}'? [y/N] ").strip().lower()
-    if answer == 'y':
+    if answer == "y":
         os.remove(latest_file)
         print(f"Deleted: {latest_file}")
     else:
         print("File kept.")
 
+
+# ---------------------------------------------------------------------------
+# Entry point
+# ---------------------------------------------------------------------------
+
 if __name__ == "__main__":
-    # Setup argparse to handle command-line arguments
-    parser = argparse.ArgumentParser(description="Analyze Bitwarden export with optional data masking.")
-    
-    # Add the --obfuscate argument
-    parser.add_argument('--obfuscate', action='store_true', 
-                        help="Obfuscate usernames and passwords in the final printed output.")
-    
+    parser = argparse.ArgumentParser(
+        description="Analyze a Bitwarden password-protected JSON export with optional data masking."
+    )
+    parser.add_argument(
+        "--obfuscate",
+        action="store_true",
+        help="Obfuscate usernames and passwords in the printed output.",
+    )
     args = parser.parse_args()
-    
-    # Pass the argument state into the function
     analyze_bitwarden_export(obfuscate=args.obfuscate)
