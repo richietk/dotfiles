@@ -89,6 +89,11 @@ sudo udevadm trigger
 echo "==> Installing SDDM theme config..."
 sudo mkdir -p /etc/sddm.conf.d
 sudo cp "$DOTFILES/system/sddm-kde_settings.conf" /etc/sddm.conf.d/kde_settings.conf
+sudo cp -r "$DOTFILES/system/sddm-themes/sugar-candy" /usr/share/sddm/themes/
+
+echo "==> Installing GRUB config..."
+sudo cp "$DOTFILES/system/grub" /etc/default/grub
+sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 echo "==> Installing sudoers fragment..."
 sudo cp "$DOTFILES/system/touchpad-reset" /etc/sudoers.d/touchpad-reset
