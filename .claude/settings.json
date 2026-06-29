@@ -1,6 +1,4 @@
 {
-  "skipDangerousModePermissionPrompt": true,
-  "theme": "light",
   "permissions": {
     "allow": [
       "Bash(ls *)",
@@ -9,5 +7,8 @@
       "Bash(grep *)",
       "Bash(wc *)"
     ]
-  }
+  },
+  "skipDangerousModePermissionPrompt": true,
+  "theme": "light",
+  "tui": "fullscreen"
 }

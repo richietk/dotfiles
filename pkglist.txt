@@ -218,6 +218,7 @@ testdisk
 timeshift
 tinyxml2
 tk
+tlp
 translate-shell
 tree
 ttf-material-symbols-variable-git
