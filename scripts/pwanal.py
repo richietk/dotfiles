@@ -14,11 +14,13 @@ How to export:
 """
 
 import os
+import re
 import glob
 import json
 import base64
 import getpass
 import argparse
+from collections import Counter
 
 import pandas as pd
 
@@ -42,6 +44,84 @@ def mask_string(s):
     if len(s) <= 2:
         return "*" * len(s)
     return s[0] + "*" * (len(s) - 2) + s[-1]
+
+
+# ---------------------------------------------------------------------------
+# Password structure classification
+# ---------------------------------------------------------------------------
+
+KEYBOARD_WALKS = [
+    'qwerty', 'qwert', 'asdfgh', 'asdfg', 'asdf', 'zxcvbn', 'zxcvb',
+    '123456', '12345', '23456', '34567', '45678', '56789', '98765', '87654',
+]
+
+STRUCTURE_LABELS = {
+    "passphrase":        "Passphrase          (e.g. Asd-Basd, AsdBasd, correct-horse)",
+    "standard_pattern":  "Standard pattern    (e.g. Password123!, Summer2024)",
+    "random":            "Random/high-entropy (e.g. xK9#mP2$!qR7)",
+    "numeric_only":      "Numeric only / PIN  (e.g. 1234, 198804)",
+    "alphabetic_simple": "Simple word/name    (e.g. password, sunshine)",
+    "keyboard_walk":     "Keyboard walk       (e.g. qwerty123, asdf1234)",
+    "other":             "Other",
+}
+
+
+def classify_password_structure(password: str) -> str:
+    """Classify a password into a structural category."""
+    if not password:
+        return "other"
+
+    pw_lower = password.lower()
+
+    # 1. Numeric only (PIN / date)
+    if password.isdigit():
+        return "numeric_only"
+
+    # 2. Keyboard walk pattern
+    for walk in KEYBOARD_WALKS:
+        if walk in pw_lower:
+            return "keyboard_walk"
+
+    # 3. Passphrase — separator-based (Asd-Basd, correct_horse_battery)
+    sep_parts = re.split(r'[-_.\s]+', password)
+    if len(sep_parts) >= 2:
+        word_parts = [p for p in sep_parts if re.match(r'^[a-zA-Z]{3,}$', p)]
+        if len(word_parts) >= 2 and len(word_parts) / len(sep_parts) >= 0.6:
+            return "passphrase"
+
+    # 4. Passphrase — CamelCase (AsdBasd, BlueHorsePurple)
+    camel_words = re.findall(r'[A-Z][a-z]{2,}', password)
+    if len(camel_words) >= 2:
+        camel_coverage = sum(len(w) for w in camel_words) / len(password)
+        if camel_coverage >= 0.7:
+            return "passphrase"
+
+    # 5. Standard pattern: [optional_special] Word Numbers [optional_special]
+    #    e.g. Password123!, Admin2024, hello99!, Summer@2024
+    if re.match(r'^[^a-zA-Z0-9]{0,2}[A-Za-z]{3,15}[0-9]{1,8}[^a-zA-Z0-9]{0,3}$', password):
+        return "standard_pattern"
+    if re.match(r'^[^a-zA-Z0-9]{0,2}[A-Za-z]{3,15}[^a-zA-Z0-9]{1,3}[0-9]{1,8}[^a-zA-Z0-9]{0,2}$', password):
+        return "standard_pattern"
+
+    # 6. Random / high-entropy: multiple char classes + high unique-char ratio
+    char_classes = sum([
+        bool(re.search(r'[A-Z]', password)),
+        bool(re.search(r'[a-z]', password)),
+        bool(re.search(r'[0-9]', password)),
+        bool(re.search(r'[^a-zA-Z0-9]', password)),
+    ])
+    unique_ratio = len(set(password)) / len(password)
+
+    if char_classes >= 3 and unique_ratio >= 0.55:
+        return "random"
+    if char_classes >= 2 and len(password) >= 14 and unique_ratio >= 0.65:
+        return "random"
+
+    # 7. Simple word (only letters, no digits or specials)
+    if re.match(r'^[a-zA-Z]+$', password):
+        return "alphabetic_simple"
+
+    return "other"
 
 
 # ---------------------------------------------------------------------------
@@ -255,6 +335,17 @@ def analyze_bitwarden_export(obfuscate=False):
         display_pass = mask_string(password) if obfuscate else password
         percentage   = (count / total_entries) * 100
         print(f"  - User: '{display_user}' | Pass: '{display_pass}' -> {percentage:.2f}% ({count} total uses)")
+
+    # Password structure breakdown (counted over unique password values)
+    unique_passwords = df["login_password"].dropna().unique()
+    structure_counts = Counter(classify_password_structure(pw) for pw in unique_passwords)
+    total_unique_pw = len(unique_passwords)
+
+    print("\nPassword structure breakdown (by unique password values):")
+    for key, label in STRUCTURE_LABELS.items():
+        count = structure_counts.get(key, 0)
+        pct = (count / total_unique_pw * 100) if total_unique_pw else 0
+        print(f"  {label}: {pct:.1f}% ({count})")
 
     print()
     answer = input(f"Delete '{latest_file}'? [y/N] ").strip().lower()
