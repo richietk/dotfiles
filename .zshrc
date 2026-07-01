@@ -427,8 +427,13 @@ alias blon='bluetoothctl power on'
 alias bloff='bluetoothctl power off'
 
 # --- Screen shortcut ---
-alias sco="dbus-send --session --print-reply --dest=org.kde.kglobalaccel /component/org_kde_powerdevil org.kde.kglobalaccel.Component.invokeShortcut string:'Turn Off Screen'"
-alias hyprsco="sleep 1 && hyprctl dispatch 'hl.dsp.dpms({ action = \"disable\" })'"
+sco() {
+    if [[ -n "$HYPRLAND_INSTANCE_SIGNATURE" ]]; then
+        sleep 1 && hyprctl dispatch 'hl.dsp.dpms({ action = "disable" })'
+    else
+        dbus-send --session --print-reply --dest=org.kde.kglobalaccel /component/org_kde_powerdevil org.kde.kglobalaccel.Component.invokeShortcut string:'Turn Off Screen'
+    fi
+}
 
 cleanpkgs() {
     sudo pacman -Rns ${(f)"$(pacman -Qdtq)"}
