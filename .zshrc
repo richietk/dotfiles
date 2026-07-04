@@ -128,6 +128,9 @@ alias venvact='source ~/venv/bin/activate'
 # --- irq balance checker ---
 irqgini() { python3 "$HOME/dotfiles/scripts/irqgini.py" "$@"; }
 
+# --- downloads / documents organizer ---
+dlorg() { python3 "$HOME/dotfiles/scripts/downloads_organizer.py" "$@"; }
+
 
 # encryption
 alias ecvault="fusermount3 -u ~/Documents/Vault"
@@ -188,6 +191,49 @@ venv-delete() {
     else
         echo "No venv found at ./$name"
         return 1
+    fi
+}
+
+venvlist() {
+    local venvs=()
+    local i=1
+
+    echo "Scanning $HOME for virtual environments..."
+    while IFS= read -r cfg; do
+        venvs+=("$(dirname "$cfg")")
+    done < <(find "$HOME" -name "pyvenv.cfg" -not -path "*/.git/*" 2>/dev/null)
+
+    if (( ${#venvs[@]} == 0 )); then
+        echo "No virtual environments found."
+        return 0
+    fi
+
+    echo "\nFound ${#venvs[@]} virtual environment(s):\n"
+    local venv size
+    for venv in "${venvs[@]}"; do
+        size="$(du -sh "$venv" 2>/dev/null | cut -f1)"
+        echo "  $i) [$size]\t$venv"
+        (( i++ ))
+    done
+
+    echo ""
+    local choice
+    read "choice?Enter number to delete (or press Enter to cancel): "
+    [[ -z "$choice" ]] && { echo "Cancelled."; return 0; }
+
+    if ! [[ "$choice" =~ ^[0-9]+$ ]] || (( choice < 1 || choice > ${#venvs[@]} )); then
+        echo "Invalid choice."
+        return 1
+    fi
+
+    local target="${venvs[$choice]}"
+    local confirm
+    read "confirm?Delete '$target'? [y/N] "
+    if [[ "$confirm" == [Yy] ]]; then
+        rm -rf "$target"
+        echo "Deleted $target"
+    else
+        echo "Aborted."
     fi
 }
 

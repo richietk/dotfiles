@@ -248,7 +248,7 @@
   <Fonts>
     <Main>
       <Name>default</Name>
-      <Size>14</Size>
+      <Size>13</Size>
       <Style>1</Style>
       <Quality>0</Quality>
     </Main>
@@ -730,7 +730,7 @@
           <Title>Name</Title>
           <Unique>16C4E309-8754-4A68-8064-FB546D157A24</Unique>
           <FuncString>[DC().GETFILENAMENOEXT{}]</FuncString>
-          <Width>522</Width>
+          <Width>807</Width>
           <Align>0</Align>
           <Font>
             <Name>default</Name>
