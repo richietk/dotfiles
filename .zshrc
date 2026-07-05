@@ -131,7 +131,8 @@ irqgini() { python3 "$HOME/dotfiles/scripts/irqgini.py" "$@"; }
 # --- downloads / documents organizer ---
 dlorg() { python3 "$HOME/dotfiles/scripts/downloads_organizer.py" "$@"; }
 
-
+export PATH="$HOME/dotfiles/scripts:$PATH"
+[[ -f ~/.zshrc.secrets ]] && source ~/.zshrc.secrets
 # encryption
 alias ecvault="fusermount3 -u ~/Documents/Vault"
 alias dcvault="gocryptfs ~/.vault-encrypted ~/Documents/Vault && obsidian"

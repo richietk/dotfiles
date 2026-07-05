@@ -8,6 +8,7 @@ asusctl
 base
 base-devel
 bc
+beets
 bitwarden
 bluedevil
 blueman
@@ -17,6 +18,7 @@ brightnessctl
 btop
 cairomm
 cava
+chromaprint
 clang
 claude-code
 cliphist
@@ -58,6 +60,7 @@ github-cli
 glib2
 globalprotect-openconnect
 gnome-keyring
+gnucash
 go-yq
 gobject-introspection
 google-chrome
@@ -167,6 +170,7 @@ python-numpy
 python-opencv
 python-pandas
 python-pip
+python-pyacoustid
 python-pyqt5
 python-virtualenv
 qdirstat
