@@ -590,7 +590,7 @@ sysmaint() {
     python3 /home/richard/dotfiles/scripts/downloads_organizer.py
 
     echo "==> Running music manager..."
-    /home/richard/Projects/music_manager ~/Music
+    music_manager ~/Music
 
     # --- Stop capture and print network summary ---
     kill "$_nw_pid" 2>/dev/null
