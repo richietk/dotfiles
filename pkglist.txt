@@ -212,6 +212,7 @@ starship
 strace
 sudo
 swappy
+sweethome3d
 syntax-highlighting
 sysstat
 system-config-printer

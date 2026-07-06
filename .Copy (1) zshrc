@@ -523,43 +523,12 @@ cleanup() {
 alias updt="sudo pacman -Syu"
 
 sysmaint() {
-    local ans _nw_iface _nw_ipfile _nw_lblfile _nw_pid
+    local ans
 
-    # --- Start network capture in background (parallel to all maintenance) ---
-    _nw_ipfile=$(mktemp /tmp/sysmaint_nw_ip.XXXXXX)
-    _nw_lblfile=$(mktemp /tmp/sysmaint_nw_lbl.XXXXXX)
-    if ip link show atvpn &>/dev/null; then
-        _nw_iface="atvpn"
-    else
-        echo "==> [netwatch] atvpn not found, falling back to default interface"
-        _nw_iface="$(ip route show default 2>/dev/null | awk '/default/ {print $5; exit}')"
+    read "ans?Run pacman -Syu? [y/N] "
+    if [[ "$ans" == [Yy] ]]; then
+        sudo pacman -Syu || { echo "pacman -Syu failed." >&2; return 1; }
     fi
-    (
-        tshark -i "$_nw_iface" -l -q \
-            -T fields -e ip.dst -e ip.dst_host -e http.host \
-            -e tls.handshake.extensions_server_name -N n \
-            2>/dev/null | \
-        while IFS=$'\t' read -r _ip _dns _http _sni; do
-            _ip="${_ip%%,*}"
-            [[ -z "$_ip" ]] && continue
-            echo "$_ip" >> "$_nw_ipfile"
-            if   [[ -n "$_sni"  && "$_sni"  != "$_ip" ]]; then _lbl="$_sni"
-            elif [[ -n "$_http" && "$_http" != "$_ip" ]]; then _lbl="$_http"
-            elif [[ -n "$_dns"  && "$_dns"  != "$_ip" ]]; then _lbl="$_dns"
-            else continue
-            fi
-            printf '%s\t%s\n' "$_ip" "$_lbl" >> "$_nw_lblfile"
-        done
-    ) &
-    _nw_pid=$!
-
-    echo "==> Running pacman -Syu..."
-    sudo pacman -Syu || {
-        echo "pacman -Syu failed." >&2
-        kill "$_nw_pid" 2>/dev/null
-        rm -f "$_nw_ipfile" "$_nw_lblfile"
-        return 1
-    }
 
     echo "==> Updating package list..."
     updtpkglist
@@ -570,15 +539,14 @@ sysmaint() {
     echo "==> Pushing dotfiles..."
     pushdots
 
-    echo "==> Running yay -Syu..."
-    yay -Syu
+    read "ans?Run yay -Syu? [y/N] "
+    if [[ "$ans" == [Yy] ]]; then
+        yay -Syu
+    fi
 
-    # Local backup: autodetect — run only if SSD is mounted, no prompt
-    if [[ -d "$SSD_MOUNT" ]]; then
-        echo "==> Local SSD detected, running contentbak..."
+    read "ans?Run contentbak (local SSD backup)? [y/N] "
+    if [[ "$ans" == [Yy] ]]; then
         contentbak
-    else
-        echo "==> Local SSD not mounted ($SSD_MOUNT), skipping local backup."
     fi
 
     read "ans?Run contentbak -g (Google Drive backup)? [y/N] "
@@ -586,53 +554,7 @@ sysmaint() {
         contentbak -g
     fi
 
-    echo "==> Running downloads organizer..."
-    python3 /home/richard/dotfiles/scripts/downloads_organizer.py
-
-    echo "==> Running music manager..."
-    /home/richard/Projects/music_manager ~/Music
-
-    # --- Stop capture and print network summary ---
-    kill "$_nw_pid" 2>/dev/null
-    wait "$_nw_pid" 2>/dev/null
-
-    echo ""
-    echo "==> Network traffic summary (excluding local IPs):"
-    if [[ -s "$_nw_ipfile" ]]; then
-        printf '\033[1m%-7s  %-22s  %s\033[0m\n' "PACKETS" "DESTINATION IP" "HOST / LABEL"
-        printf '─%.0s' {1..60}; echo ""
-        awk -F'\t' -v lbl="$_nw_lblfile" '
-            BEGIN { while ((getline line < lbl) > 0) {
-                split(line, a, "\t"); cache[a[1]] = a[2]
-            }}
-            {
-                ip = $1
-                if (ip ~ /^10\./ || ip ~ /^127\./ || ip ~ /^169\.254\./ ||
-                    ip ~ /^192\.168\./) next
-                if (ip ~ /^172\./) {
-                    n = split(ip, o, ".")
-                    if (n >= 2 && o[2]+0 >= 16 && o[2]+0 <= 31) next
-                }
-                count[ip]++
-            }
-            END {
-                for (ip in count) {
-                    label = (ip in cache) ? cache[ip] : ip
-                    printf "%d\t%s\t%s\n", count[ip], ip, label
-                }
-            }
-        ' "$_nw_ipfile" | sort -rn | while IFS=$'\t' read -r cnt ip lbl; do
-            printf '%-7s  %-22s  %s\n' "$cnt" "$ip" "$lbl"
-        done
-    else
-        echo "  (no traffic recorded)"
-    fi
-
-    rm -f "$_nw_ipfile" "$_nw_lblfile"
-
-    echo ""
     echo "==> sysmaint done."
-    fastfetch
 }
 
 updtpkglist() {
