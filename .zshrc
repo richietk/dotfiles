@@ -524,6 +524,9 @@ alias updt="sudo pacman -Syu"
 
 sysmaint() {
     local ans _nw_iface _nw_ipfile _nw_lblfile _nw_pid
+    local -a _sm_log
+    local _sm_tab=$'\t'
+    local _sm_t0 _sm_total_start=$(date +%s)
 
     # --- Start network capture in background (parallel to all maintenance) ---
     _nw_ipfile=$(mktemp /tmp/sysmaint_nw_ip.XXXXXX)
@@ -553,6 +556,7 @@ sysmaint() {
     ) &
     _nw_pid=$!
 
+    _sm_t0=$(date +%s)
     echo "==> Running pacman -Syu..."
     sudo pacman -Syu || {
         echo "pacman -Syu failed." >&2
@@ -560,37 +564,54 @@ sysmaint() {
         rm -f "$_nw_ipfile" "$_nw_lblfile"
         return 1
     }
+    _sm_log+=("pacman -Syu${_sm_tab}$(( $(date +%s) - _sm_t0 ))")
 
+    _sm_t0=$(date +%s)
     echo "==> Updating package list..."
     updtpkglist
+    _sm_log+=("update package list${_sm_tab}$(( $(date +%s) - _sm_t0 ))")
 
+    _sm_t0=$(date +%s)
     echo "==> Cleaning orphaned packages and cache..."
     cleanpkgs
+    _sm_log+=("clean packages${_sm_tab}$(( $(date +%s) - _sm_t0 ))")
 
+    _sm_t0=$(date +%s)
     echo "==> Pushing dotfiles..."
     pushdots
+    _sm_log+=("push dotfiles${_sm_tab}$(( $(date +%s) - _sm_t0 ))")
 
+    _sm_t0=$(date +%s)
     echo "==> Running yay -Syu..."
     yay -Syu
+    _sm_log+=("yay -Syu${_sm_tab}$(( $(date +%s) - _sm_t0 ))")
 
     # Local backup: autodetect — run only if SSD is mounted, no prompt
+    _sm_t0=$(date +%s)
     if [[ -d "$SSD_MOUNT" ]]; then
         echo "==> Local SSD detected, running contentbak..."
         contentbak
     else
         echo "==> Local SSD not mounted ($SSD_MOUNT), skipping local backup."
     fi
+    _sm_log+=("local backup${_sm_tab}$(( $(date +%s) - _sm_t0 ))")
 
     read "ans?Run contentbak -g (Google Drive backup)? [y/N] "
     if [[ "$ans" == [Yy] ]]; then
+        _sm_t0=$(date +%s)
         contentbak -g
+        _sm_log+=("google drive backup${_sm_tab}$(( $(date +%s) - _sm_t0 ))")
     fi
 
+    _sm_t0=$(date +%s)
     echo "==> Running downloads organizer..."
     python3 /home/richard/dotfiles/scripts/downloads_organizer.py
+    _sm_log+=("downloads organizer${_sm_tab}$(( $(date +%s) - _sm_t0 ))")
 
+    _sm_t0=$(date +%s)
     echo "==> Running music manager..."
     music_manager ~/Music
+    _sm_log+=("music manager${_sm_tab}$(( $(date +%s) - _sm_t0 ))")
 
     # --- Stop capture and print network summary ---
     kill "$_nw_pid" 2>/dev/null
@@ -631,8 +652,19 @@ sysmaint() {
     rm -f "$_nw_ipfile" "$_nw_lblfile"
 
     echo ""
+    echo "==> Time summary:"
+    printf '%-25s  %s\n' "SECTION" "SECONDS"
+    printf '─%.0s' {1..40}; echo ""
+    local _sm_name _sm_secs _sm_line
+    for _sm_line in "${_sm_log[@]}"; do
+        IFS=$'\t' read -r _sm_name _sm_secs <<< "$_sm_line"
+        printf '%-25s  %s\n' "$_sm_name" "$_sm_secs"
+    done
+    printf '─%.0s' {1..40}; echo ""
+    printf '%-25s  %s\n' "TOTAL" "$(( $(date +%s) - _sm_total_start ))"
+
+    echo ""
     echo "==> sysmaint done."
-    fastfetch
 }
 
 updtpkglist() {

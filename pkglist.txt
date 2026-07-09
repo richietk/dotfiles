@@ -230,6 +230,7 @@ tree
 ttf-material-symbols-variable-git
 ttf-nerd-fonts-symbols
 unrar
+unzip
 upower
 usbmuxd
 usbutils
