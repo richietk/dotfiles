@@ -328,7 +328,7 @@ contentbak() {
             || { echo "rclone remote 'gdrive' not configured. Run: rclone config" >&2; return 1; }
         repo="rclone:gdrive:backup/restic_repo"
     else
-        [[ -d "$SSD_MOUNT" ]] || { echo "Drive not mounted at $SSD_MOUNT." >&2; return 1; }
+        mountpoint -q "$SSD_MOUNT" || { echo "Drive not mounted at $SSD_MOUNT." >&2; return 1; }
         repo="$SSD_MOUNT/backup/restic_repo"
     fi
 
@@ -526,37 +526,20 @@ cleanup() {
 alias updt="sudo pacman -Syu"
 
 sysmaint() {
-    local ans _nw_iface _nw_ipfile _nw_lblfile _nw_pid
+    local ans _nw_iface _nw_logfile _nw_pid
     local -a _sm_log
     local _sm_tab=$'\t'
     local _sm_t0 _sm_total_start=$(date +%s)
 
-    # --- Start network capture in background (parallel to all maintenance) ---
-    _nw_ipfile=$(mktemp /tmp/sysmaint_nw_ip.XXXXXX)
-    _nw_lblfile=$(mktemp /tmp/sysmaint_nw_lbl.XXXXXX)
+    # --- Start netwatch in background (parallel to all maintenance) ---
+    _nw_logfile=$(mktemp /tmp/sysmaint_nw_log.XXXXXX)
     if ip link show atvpn &>/dev/null; then
         _nw_iface="atvpn"
     else
         echo "==> [netwatch] atvpn not found, falling back to default interface"
         _nw_iface="$(ip route show default 2>/dev/null | awk '/default/ {print $5; exit}')"
     fi
-    (
-        tshark -i "$_nw_iface" -l -q \
-            -T fields -e ip.dst -e ip.dst_host -e http.host \
-            -e tls.handshake.extensions_server_name -N n \
-            2>/dev/null | \
-        while IFS=$'\t' read -r _ip _dns _http _sni; do
-            _ip="${_ip%%,*}"
-            [[ -z "$_ip" ]] && continue
-            echo "$_ip" >> "$_nw_ipfile"
-            if   [[ -n "$_sni"  && "$_sni"  != "$_ip" ]]; then _lbl="$_sni"
-            elif [[ -n "$_http" && "$_http" != "$_ip" ]]; then _lbl="$_http"
-            elif [[ -n "$_dns"  && "$_dns"  != "$_ip" ]]; then _lbl="$_dns"
-            else continue
-            fi
-            printf '%s\t%s\n' "$_ip" "$_lbl" >> "$_nw_lblfile"
-        done
-    ) &
+    "$HOME/dotfiles/scripts/netwatch" "$_nw_iface" > "$_nw_logfile" 2>&1 &
     _nw_pid=$!
 
     _sm_t0=$(date +%s)
@@ -564,7 +547,7 @@ sysmaint() {
     sudo pacman -Syu || {
         echo "pacman -Syu failed." >&2
         kill "$_nw_pid" 2>/dev/null
-        rm -f "$_nw_ipfile" "$_nw_lblfile"
+        rm -f "$_nw_logfile"
         return 1
     }
     _sm_log+=("pacman -Syu${_sm_tab}$(( $(date +%s) - _sm_t0 ))")
@@ -586,12 +569,12 @@ sysmaint() {
 
     _sm_t0=$(date +%s)
     echo "==> Running yay -Syu..."
-    yay -Syu
+    yay -Syu --noconfirm --answerclean=None --answerdiff=None --answeredit=None --answerupgrade=None
     _sm_log+=("yay -Syu${_sm_tab}$(( $(date +%s) - _sm_t0 ))")
 
     # Local backup: autodetect — run only if SSD is mounted, no prompt
     _sm_t0=$(date +%s)
-    if [[ -d "$SSD_MOUNT" ]]; then
+    if mountpoint -q "$SSD_MOUNT"; then
         echo "==> Local SSD detected, running contentbak..."
         contentbak
     else
@@ -616,43 +599,25 @@ sysmaint() {
     music_manager ~/Music
     _sm_log+=("music manager${_sm_tab}$(( $(date +%s) - _sm_t0 ))")
 
-    # --- Stop capture and print network summary ---
+    # --- Stop netwatch and print its last drawn frame ---
     kill "$_nw_pid" 2>/dev/null
     wait "$_nw_pid" 2>/dev/null
 
     echo ""
-    echo "==> Network traffic summary (excluding local IPs):"
-    if [[ -s "$_nw_ipfile" ]]; then
-        printf '\033[1m%-7s  %-22s  %s\033[0m\n' "PACKETS" "DESTINATION IP" "HOST / LABEL"
-        printf '─%.0s' {1..60}; echo ""
-        awk -F'\t' -v lbl="$_nw_lblfile" '
-            BEGIN { while ((getline line < lbl) > 0) {
-                split(line, a, "\t"); cache[a[1]] = a[2]
-            }}
-            {
-                ip = $1
-                if (ip ~ /^10\./ || ip ~ /^127\./ || ip ~ /^169\.254\./ ||
-                    ip ~ /^192\.168\./) next
-                if (ip ~ /^172\./) {
-                    n = split(ip, o, ".")
-                    if (n >= 2 && o[2]+0 >= 16 && o[2]+0 <= 31) next
-                }
-                count[ip]++
-            }
-            END {
-                for (ip in count) {
-                    label = (ip in cache) ? cache[ip] : ip
-                    printf "%d\t%s\t%s\n", count[ip], ip, label
-                }
-            }
-        ' "$_nw_ipfile" | sort -rn | while IFS=$'\t' read -r cnt ip lbl; do
-            printf '%-7s  %-22s  %s\n' "$cnt" "$ip" "$lbl"
-        done
+    echo "==> Network traffic summary (netwatch, last snapshot):"
+    if [[ -s "$_nw_logfile" ]]; then
+        local _nw_clearseq=$(clear) _nw_off
+        _nw_off=$(grep -abo -F "$_nw_clearseq" "$_nw_logfile" 2>/dev/null | tail -1 | cut -d: -f1)
+        if [[ -n "$_nw_off" ]]; then
+            tail -c +$(( _nw_off + ${#_nw_clearseq} + 1 )) "$_nw_logfile"
+        else
+            tail -n 40 "$_nw_logfile"
+        fi
     else
         echo "  (no traffic recorded)"
     fi
 
-    rm -f "$_nw_ipfile" "$_nw_lblfile"
+    rm -f "$_nw_logfile"
 
     echo ""
     echo "==> Time summary:"
