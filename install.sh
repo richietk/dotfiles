@@ -72,6 +72,54 @@ mkdir -p ~/.config/gtk-3.0 ~/.config/gtk-4.0
 ln -sf "$DOTFILES/.config/gtk-3.0/settings.ini" ~/.config/gtk-3.0/settings.ini
 ln -sf "$DOTFILES/.config/gtk-4.0/settings.ini" ~/.config/gtk-4.0/settings.ini
 
+# Fuzzel
+ln -sfn "$DOTFILES/.config/fuzzel" ~/.config/fuzzel
+
+# wlogout
+ln -sfn "$DOTFILES/.config/wlogout" ~/.config/wlogout
+
+# cava
+ln -sfn "$DOTFILES/.config/cava" ~/.config/cava
+
+# btop
+ln -sfn "$DOTFILES/.config/btop" ~/.config/btop
+
+# Midnight Commander
+ln -sfn "$DOTFILES/.config/mc" ~/.config/mc
+
+# nnn
+ln -sfn "$DOTFILES/.config/nnn" ~/.config/nnn
+
+# KDiskMark
+ln -sfn "$DOTFILES/.config/kdiskmark" ~/.config/kdiskmark
+
+# Xournal++
+ln -sfn "$DOTFILES/.config/xournalpp" ~/.config/xournalpp
+
+# Kate (external tools, LSP client config) + Konsole + KWrite
+ln -sfn "$DOTFILES/.config/kate" ~/.config/kate
+ln -sf  "$DOTFILES/.config/konsolerc" ~/.config/konsolerc
+ln -sf  "$DOTFILES/.config/kwriterc"  ~/.config/kwriterc
+
+# Quickshell (illogical-impulse shell config)
+ln -sfn "$DOTFILES/.config/quickshell" ~/.config/quickshell
+
+# beets (config only; library.db/import.log/state.pickle stay local)
+mkdir -p ~/.config/beets
+ln -sf "$DOTFILES/.config/beets/config.yaml" ~/.config/beets/config.yaml
+
+# OBS Studio (app + profiles/scenes only; logs/plugin state/websocket secrets stay local)
+mkdir -p ~/.config/obs-studio/basic
+ln -sf  "$DOTFILES/.config/obs-studio/global.ini" ~/.config/obs-studio/global.ini
+ln -sf  "$DOTFILES/.config/obs-studio/user.ini"   ~/.config/obs-studio/user.ini
+ln -sfn "$DOTFILES/.config/obs-studio/basic/profiles" ~/.config/obs-studio/basic/profiles
+ln -sfn "$DOTFILES/.config/obs-studio/basic/scenes"   ~/.config/obs-studio/basic/scenes
+
+# Wireshark (extcap + preferences only; recent/recent_common MRU lists stay local)
+mkdir -p ~/.config/wireshark
+ln -sf "$DOTFILES/.config/wireshark/extcap.cfg"   ~/.config/wireshark/extcap.cfg
+ln -sf "$DOTFILES/.config/wireshark/preferences"  ~/.config/wireshark/preferences
+
 # systemd user service
 mkdir -p ~/.config/systemd/user || { echo "Failed to create ~/.config/systemd/user" >&2; exit 1; }
 ln -sf "$DOTFILES/.config/systemd/user/touchpad-filter.service" \

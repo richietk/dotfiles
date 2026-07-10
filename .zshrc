@@ -131,6 +131,9 @@ irqgini() { python3 "$HOME/dotfiles/scripts/irqgini.py" "$@"; }
 # --- downloads / documents organizer ---
 dlorg() { python3 "$HOME/dotfiles/scripts/downloads_organizer.py" "$@"; }
 
+# --- bitwarden vault password analyzer ---
+pwanal() { python3 "$HOME/dotfiles/scripts/pwanal.py" "$@"; }
+
 export PATH="$HOME/dotfiles/scripts:$PATH"
 [[ -f ~/.zshrc.secrets ]] && source ~/.zshrc.secrets
 # encryption

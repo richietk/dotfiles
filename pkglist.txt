@@ -9,7 +9,6 @@ base
 base-devel
 bc
 beets
-bitwarden
 bluedevil
 blueman
 bluez
@@ -54,6 +53,7 @@ fsearch
 fuse-overlayfs
 fuzzel
 fzf
+gammaray
 geoclue
 git
 github-cli
@@ -159,6 +159,7 @@ plocate
 pnpm
 polkit-kde-agent
 power-profiles-daemon
+powertop
 proton-vpn-cli
 proton-vpn-gtk-app
 pyright
@@ -195,6 +196,7 @@ qt6ct
 quantlib
 quickshell-git
 qview
+rbw
 rclone
 restic
 ripgrep
