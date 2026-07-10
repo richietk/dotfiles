@@ -158,10 +158,10 @@
   </Toolbars>
   <MainWindow>
     <Position Save="True">
-      <Left>2886</Left>
-      <Top>46</Top>
-      <Width>2856</Width>
-      <Height>1674</Height>
+      <Left>2880</Left>
+      <Top>0</Top>
+      <Width>1908</Width>
+      <Height>1006</Height>
       <PixelsPerInch>96</PixelsPerInch>
       <Maximized>False</Maximized>
       <Splitter>52.8183716075157</Splitter>
@@ -730,7 +730,7 @@
           <Title>Name</Title>
           <Unique>16C4E309-8754-4A68-8064-FB546D157A24</Unique>
           <FuncString>[DC().GETFILENAMENOEXT{}]</FuncString>
-          <Width>807</Width>
+          <Width>327</Width>
           <Align>0</Align>
           <Font>
             <Name>default</Name>
