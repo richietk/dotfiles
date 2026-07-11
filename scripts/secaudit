@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+#
+# secaudit — quick local security/privacy sweep:
+#   1. clear VSCode logs and Gemini Code Assist's cached storage
+#   2. run find-stray-emails.sh and print what it finds
+#   3. run find-stray-passwords.sh (rbw vault vs. filesystem) and print what it finds
+#   4. run check-hibp.sh (rbw vault passwords vs. Have I Been Pwned) and print any breach hits
+#
+# Usage:
+#   secaudit [--show]
+#
+# Flags:
+#   --show   passed through to check-hibp.sh: print plaintext pwned passwords
+#            alongside breach hits, instead of just entry names.
+
+set -uo pipefail
+
+CODE_LOGS="$HOME/.config/Code/logs"
+GEMINI_STORAGE="$HOME/.config/Code/User/globalStorage/google.geminicodeassist"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+
+echo "Clearing $CODE_LOGS ..." >&2
+rm -rf -- "${CODE_LOGS:?}"/*
+
+echo "Clearing $GEMINI_STORAGE ..." >&2
+rm -rf -- "${GEMINI_STORAGE:?}"/*
+
+# belt-and-suspenders: catch any stray .log files the glob above missed
+# (e.g. inside dotdirs, which "logs/*" doesn't expand into)
+find "$CODE_LOGS" -name "*.log" -delete 2>/dev/null
+
+echo "Scanning for stray emails..." >&2
+"$SCRIPT_DIR/find-stray-emails.sh"
+
+echo "Scanning for stray passwords (this will unlock your rbw vault)..." >&2
+"$SCRIPT_DIR/find-stray-passwords.sh"
+
+echo "Checking vault passwords against Have I Been Pwned..." >&2
+"$SCRIPT_DIR/check-hibp.sh" "$@"

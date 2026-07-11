@@ -160,6 +160,7 @@ pnpm
 polkit-kde-agent
 power-profiles-daemon
 powertop
+proton-drive-cli-bin
 proton-vpn-cli
 proton-vpn-gtk-app
 pyright

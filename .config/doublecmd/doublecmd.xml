@@ -160,11 +160,11 @@
     <Position Save="True">
       <Left>2880</Left>
       <Top>0</Top>
-      <Width>1908</Width>
-      <Height>1006</Height>
+      <Width>949</Width>
+      <Height>1046</Height>
       <PixelsPerInch>96</PixelsPerInch>
       <Maximized>False</Maximized>
-      <Splitter>52.8183716075157</Splitter>
+      <Splitter>46.7191601049869</Splitter>
     </Position>
   </MainWindow>
   <Language>
@@ -708,7 +708,7 @@
   <NameShortcutFile>shortcuts.scf</NameShortcutFile>
   <HotKeySortOrder>0</HotKeySortOrder>
   <UseEnterToCloseHotKeyEditor>True</UseEnterToCloseHotKeyEditor>
-  <LastUsedPacker>tgz</LastUsedPacker>
+  <LastUsedPacker>tar</LastUsedPacker>
   <LastDoAnyCommand>cm_Refresh</LastDoAnyCommand>
   <MarkMaskCaseSensitive>False</MarkMaskCaseSensitive>
   <MarkMaskIgnoreAccents>False</MarkMaskIgnoreAccents>
@@ -746,7 +746,7 @@
           <Title>Ext</Title>
           <Unique>089C2D1B-C8DB-414B-B5EE-A73FF31D7C7F</Unique>
           <FuncString>[DC().GETFILEEXT{}]</FuncString>
-          <Width>60</Width>
+          <Width>195</Width>
           <Align>0</Align>
           <Font>
             <Name>default</Name>

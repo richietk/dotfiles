@@ -8,10 +8,10 @@
       "Bash(wc *)"
     ]
   },
-  "tui": "fullscreen",
-  "skipDangerousModePermissionPrompt": true,
-  "theme": "light",
   "enabledPlugins": {
     "pyright-lsp@claude-plugins-official": true
-  }
+  },
+  "tui": "fullscreen",
+  "skipDangerousModePermissionPrompt": true,
+  "theme": "light"
 }
