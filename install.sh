@@ -126,9 +126,15 @@ ln -sf "$DOTFILES/.config/systemd/user/touchpad-filter.service" \
        ~/.config/systemd/user/touchpad-filter.service
 
 echo "==> Installing system scripts (needs sudo)..."
-sudo cp "$DOTFILES/scripts/touchpad-filter" /usr/local/bin/touchpad-filter
-sudo cp "$DOTFILES/scripts/reset-touchpad"  /usr/local/bin/reset-touchpad
-sudo chmod 755 /usr/local/bin/touchpad-filter /usr/local/bin/reset-touchpad
+sudo cp "$DOTFILES/scripts/touchpad-filter"  /usr/local/bin/touchpad-filter
+sudo cp "$DOTFILES/scripts/reset-touchpad"   /usr/local/bin/reset-touchpad
+sudo cp "$DOTFILES/scripts/thermal-guard.sh" /usr/local/bin/thermal-guard.sh
+sudo chmod 755 /usr/local/bin/touchpad-filter /usr/local/bin/reset-touchpad /usr/local/bin/thermal-guard.sh
+
+echo "==> Installing thermal-guard systemd service..."
+sudo cp "$DOTFILES/system/thermal-guard.service" /etc/systemd/system/thermal-guard.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now thermal-guard.service
 
 echo "==> Installing udev rule..."
 sudo cp "$DOTFILES/system/99-uinput.rules" /etc/udev/rules.d/99-uinput.rules
