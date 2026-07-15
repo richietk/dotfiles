@@ -35,21 +35,31 @@
     plocate
     nixfmt
     kitty
+    bc
+    curl
+    less
+    mc
+    nnn
+    file-rename
+    pyright
+    strace
+    testdisk
+    tesseract
+    fdupes
+    graphviz
+    imagemagick
+    inxi
   ];
 
   programs.zsh = {
     enable = true;
     enableCompletion = true;
-    autosuggestion.enable = true;
-    syntaxHighlighting.enable = true;
+    autosuggestion.enable = false;
+    syntaxHighlighting.enable = false;
     initContent = ''
       [ -f ~/dotfiles/.zshrc ] && source ~/dotfiles/.zshrc
     '';
   };
-
-programs.starship = {
-  enable = true;
-};
 
 home.file.".config/kitty/kitty.conf".source =
   config.lib.file.mkOutOfStoreSymlink "/home/richard/dotfiles/.config/kitty/kitty.conf";

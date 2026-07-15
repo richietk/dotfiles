@@ -1,4 +1,6 @@
-export ZSH="$HOME/.oh-my-zsh"
+
+casdas
+0exexport ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="robbyrussell"
 plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
 source $ZSH/oh-my-zsh.sh
@@ -96,10 +98,10 @@ alias f='sudo -E nnn -H'
 alias c='clear'
 
 # --- zsh config maintenance (renamed from the fish* aliases) ---
-alias zshpwd="echo ~/dotfiles/.zshrc"
-alias zshcopy="copy ~/dotfiles/.zshrc"
-alias sourcezsh='source ~/dotfiles/.zshrc'
-alias zshconfig='nano ~/dotfiles/.zshrc'
+alias zshpwd="echo ~/.zshrc"
+alias zshcopy="copy ~/.zshrc"
+alias sourcezsh='source ~/.zshrc'
+alias zshconfig='nano ~/.zshrc'
 alias htopcopy="copy 'ps auxf'"
 
 zshcfgsrc() {
@@ -443,17 +445,25 @@ sametest() {
     fi
 }
 
-# backup commands
-alias pdrivebackup="rclone copy /home/richard/Documents/docs pdrive:backup/docs --protondrive-replace-existing-draft=true -P"
-alias gdrivebackup="rclone copy /run/media/richard/7ABF-7932/backup/restic_repo gdrive:backup/restic_repo --progress --transfers 4 --checkers 8 --retries 10 --low-level-retries 20 --timeout 5m --contimeout 1m --stats 5s"
-
-
-# Backup using restic to local SSD
-# Repo: $SSD_MOUNT/backup/restic_repo
+# Backup using restic — local SSD (default) or Google Drive (-g flag)
+# Repos: $SSD_MOUNT/backup/restic_repo  or  rclone:gdrive:backup/restic_repo
 # Retention: 7 daily, 4 weekly, 6 monthly snapshots kept after each run.
 contentbak() {
-    local repo="$SSD_MOUNT/backup/restic_repo"
-    mountpoint -q "$SSD_MOUNT" || { echo "Drive not mounted at $SSD_MOUNT." >&2; return 1; }
+    local gdrive=false arg
+    for arg in "$@"; do
+        [[ "$arg" == "-g" ]] && gdrive=true
+    done
+
+    local repo
+    if [[ "$gdrive" == true ]]; then
+        command -v rclone &>/dev/null || { echo "rclone not installed." >&2; return 1; }
+        rclone listremotes | grep -q "^gdrive:" \
+            || { echo "rclone remote 'gdrive' not configured. Run: rclone config" >&2; return 1; }
+        repo="rclone:gdrive:backup/restic_repo"
+    else
+        mountpoint -q "$SSD_MOUNT" || { echo "Drive not mounted at $SSD_MOUNT." >&2; return 1; }
+        repo="$SSD_MOUNT/backup/restic_repo"
+    fi
 
     local sources=(
         $HOME/.config $HOME/Desktop $HOME/Documents $HOME/Downloads
@@ -474,7 +484,11 @@ contentbak() {
     # password needed — instead of asking restic, whose password prompt
     # goes to stderr and was getting swallowed by a stray redirect here)
     local repo_exists=false
-    [[ -f "$repo/config" ]] && repo_exists=true
+    if [[ "$gdrive" == true ]]; then
+        rclone lsf "gdrive:backup/restic_repo/config" &>/dev/null && repo_exists=true
+    else
+        [[ -f "$repo/config" ]] && repo_exists=true
+    fi
     if [[ "$repo_exists" == false ]]; then
         echo "Initializing restic repo at $repo..."
         restic -r "$repo" init || return 1
@@ -487,6 +501,97 @@ contentbak() {
     restic -r "$repo" forget --keep-last 10 --prune
 
     echo "Done → $repo"
+}
+
+# Old rsync/rclone-based backup (kept for reference)
+# Backup to local SSD (default) or Google Drive (-g flag)
+# Add -p to pack everything into a single tar.gz
+contentbak_old() {
+    local pack=false gdrive=false arg
+    for arg in "$@"; do
+        [[ "$arg" == "-p" ]] && pack=true
+        [[ "$arg" == "-g" ]] && gdrive=true
+    done
+
+    local date_str="$(date +%Y%m%d)"
+    local dirs=(
+        $HOME/.config $HOME/Desktop $HOME/Documents $HOME/Downloads
+        $HOME/Music $HOME/Pictures $HOME/Videos $HOME/dotfiles
+    )
+    local tar_excl=(
+        --exclude="$HOME/.config/google-chrome"
+        --exclude="$HOME/.config/discord"
+        --exclude="$HOME/.config/mozilla"
+        --exclude="$HOME/.config/Code"
+        --exclude="$HOME/.config/libreoffice"
+        --exclude="$HOME/.config/.venv"
+        --exclude='*.lock'
+    )
+    local cfg_rsync_excl=(
+        --exclude='google-chrome/' --exclude='discord/' --exclude='mozilla/'
+        --exclude='Code/' --exclude='libreoffice/' --exclude='.venv/' --exclude='*.lock'
+    )
+
+    local remote="gdrive"
+    local dest
+    if [[ "$gdrive" == true ]]; then
+        dest="${remote}:backup/content_backups/content_bak_${date_str}"
+    else
+        dest="$SSD_MOUNT/backup/content_backups/content_bak_${date_str}"
+    fi
+
+    if [[ "$gdrive" == true ]]; then
+        command -v rclone &>/dev/null || { echo "rclone not installed." >&2; return 1; }
+        rclone listremotes | grep -q "^${remote}:" \
+            || { echo "rclone remote '$remote' not configured. Run: rclone config" >&2; return 1; }
+
+        local tmpdir="/tmp/contentbak_${date_str}"
+        mkdir -p "$tmpdir"
+
+        if [[ "$pack" == true ]]; then
+            echo "Packing archive..."
+            tar czf "$tmpdir/content_bak_${date_str}.tar.gz" "${tar_excl[@]}" "${dirs[@]}"
+            rclone copy --transfers=16 --checkers=32 --drive-chunk-size=64M --progress \
+                "$tmpdir/content_bak_${date_str}.tar.gz" "$dest/"
+        else
+            echo "Archiving .config..."
+            tar czf "$tmpdir/config.tar.gz" "${tar_excl[@]}" $HOME/.config
+            rclone copy --transfers=16 --checkers=32 --drive-chunk-size=64M --progress \
+                "$tmpdir/config.tar.gz" "$dest/"
+            local dir
+            for dir in "${dirs[@]:1}"; do
+                echo "Uploading $(basename "$dir")..."
+                rclone copy --links=false --ignore-errors --update \
+                    --exclude='*.lock' --exclude='.venv/' \
+                    --transfers=16 --checkers=32 --drive-chunk-size=64M --progress \
+                    "$dir" "$dest/$(basename "$dir")/"
+            done
+        fi
+        rm -rf "$tmpdir"
+    else
+        [[ -d "$SSD_MOUNT" ]] || { echo "Drive not mounted at $SSD_MOUNT." >&2; return 1; }
+        mkdir -p "$dest"
+
+        if [[ "$pack" == true ]]; then
+            local tmpfile="/tmp/content_bak_${date_str}.tar.gz"
+            echo "Packing archive..."
+            tar czf "$tmpfile" "${tar_excl[@]}" "${dirs[@]}"
+            mv "$tmpfile" "$dest/"
+        else
+            local dir
+            for dir in "${dirs[@]}"; do
+                echo "Copying $(basename "$dir")..."
+                if [[ "$dir" == $HOME/.config ]]; then
+                    rsync -rpt --no-links --ignore-errors --update \
+                        "${cfg_rsync_excl[@]}" --info=progress2 "$dir" "$dest/"
+                else
+                    rsync -rpt --no-links --ignore-errors --update \
+                        --exclude='*.lock' --info=progress2 "$dir" "$dest/"
+                fi
+            done
+        fi
+    fi
+    echo "Done → $dest"
 }
 
 # IP info
@@ -563,7 +668,7 @@ cleanup() {
 alias updt="sudo pacman -Syu"
 
 sysmaint() {
-    local _nw_iface _nw_logfile _nw_pid
+    local ans _nw_iface _nw_logfile _nw_pid
     local -a _sm_log
     local _sm_tab=$'\t'
     local _sm_t0 _sm_total_start=$(date +%s)
@@ -622,6 +727,13 @@ sysmaint() {
     fi
     _sm_log+=("local backup${_sm_tab}$(( $(date +%s) - _sm_t0 ))")
 
+    read "ans?Run contentbak -g (Google Drive backup)? [y/N] "
+    if [[ "$ans" == [Yy] ]]; then
+        _sm_t0=$(date +%s)
+        contentbak -g
+        _sm_log+=("google drive backup${_sm_tab}$(( $(date +%s) - _sm_t0 ))")
+    fi
+
     _sm_t0=$(date +%s)
     echo "==> Running downloads organizer..."
     python3 /home/richard/dotfiles/scripts/downloads_organizer.py
@@ -677,10 +789,7 @@ updtpkglist() {
 pushdots() {
     local msg="${1:-update dotfiles}"
     updtpkglist
-    cd ~/dotfiles
-    # Untrack anything that's become a home-manager symlink before staging
-    find . -type l -lname '/nix/store/*' -exec git rm --cached {} \; 2>/dev/null
-    git add . && git commit -m "$msg" && git push
+    cd ~/dotfiles && git add . && git commit -m "$msg" && git push
     cd -
 }
 
@@ -792,7 +901,7 @@ alias wuvpnon="sudo openconnect --protocol=gp -b vpn.wu.ac.at"
 alias wuvpnoff="sudo pkill openconnect"
 
 vpnon() {
-    local flag="${1:--a}"
+    local flag="$1"
     local conf=""
     local pf=false
 
