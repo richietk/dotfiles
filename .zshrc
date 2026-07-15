@@ -132,9 +132,9 @@ irqgini() { python3 "$HOME/dotfiles/scripts/irqgini.py" "$@"; }
 dlorg() { python3 "$HOME/dotfiles/scripts/downloads_organizer.py" "$@"; }
 
 # --- bitwarden vault password analyzer ---
-pwanal() { python3 "$HOME/dotfiles/scripts/pwanal.py" "$@"; }
+pwanal() { python3 "$HOME/Documents/Projects/rbwcheck/pwanal.py" "$@"; }
 
-export PATH="$HOME/dotfiles/scripts:$PATH"
+export PATH="$HOME/dotfiles/scripts:$HOME/Documents/Projects/rbwcheck:$PATH"
 [[ -f ~/.zshrc.secrets ]] && source ~/.zshrc.secrets
 # encryption
 # deprecated: vault deleted 2026-07-11, data already moved out. future use TBD, keeping aliases around just in case.
@@ -473,8 +473,16 @@ contentbak() {
         --exclude "*.lock"
     )
 
-    # Init repo on first use
-    if ! restic -r "$repo" snapshots -q 2>/dev/null; then
+    # Init repo on first use (check for the config object directly — no
+    # password needed — instead of asking restic, whose password prompt
+    # goes to stderr and was getting swallowed by a stray redirect here)
+    local repo_exists=false
+    if [[ "$gdrive" == true ]]; then
+        rclone lsf "gdrive:backup/restic_repo/config" &>/dev/null && repo_exists=true
+    else
+        [[ -f "$repo/config" ]] && repo_exists=true
+    fi
+    if [[ "$repo_exists" == false ]]; then
         echo "Initializing restic repo at $repo..."
         restic -r "$repo" init || return 1
     fi

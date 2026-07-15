@@ -158,8 +158,8 @@
   </Toolbars>
   <MainWindow>
     <Position Save="True">
-      <Left>2880</Left>
-      <Top>0</Top>
+      <Left>24</Left>
+      <Top>80</Top>
       <Width>1908</Width>
       <Height>1006</Height>
       <PixelsPerInch>96</PixelsPerInch>

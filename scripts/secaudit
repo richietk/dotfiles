@@ -18,6 +18,7 @@ set -uo pipefail
 CODE_LOGS="$HOME/.config/Code/logs"
 GEMINI_STORAGE="$HOME/.config/Code/User/globalStorage/google.geminicodeassist"
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+RBWCHECK_DIR="$HOME/Documents/Projects/rbwcheck"
 
 echo "Clearing $CODE_LOGS ..." >&2
 rm -rf -- "${CODE_LOGS:?}"/*
@@ -33,7 +34,7 @@ echo "Scanning for stray emails..." >&2
 "$SCRIPT_DIR/find-stray-emails.sh"
 
 echo "Scanning for stray passwords (this will unlock your rbw vault)..." >&2
-"$SCRIPT_DIR/find-stray-passwords.sh"
+"$RBWCHECK_DIR/find-stray-passwords.sh"
 
 echo "Checking vault passwords against Have I Been Pwned..." >&2
-"$SCRIPT_DIR/check-hibp.sh" "$@"
+"$RBWCHECK_DIR/check-hibp.sh" "$@"
