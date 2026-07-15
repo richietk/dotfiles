@@ -1,3 +1,8 @@
 .venv/
 venv/
 .zshrc.secrets
+
+# Managed by home-manager
+.config/kitty/kitty.conf
+.config/fuzzel/fuzzel.ini
+.config/wlogout/style.css
