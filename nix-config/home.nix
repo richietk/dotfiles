@@ -49,20 +49,42 @@
     graphviz
     imagemagick
     inxi
+  hyprlock
+  hypridle
+  hyprpaper
+  wlogout
+  fuzzel
+quickshell
+kdePackages.qt5compat
+kdePackages.qtpositioning
+claude-code
+doublecmd
+restic
+git
   ];
 
-  programs.zsh = {
+programs.zsh = {
+  enable = true;
+  enableCompletion = true;
+  autosuggestion.enable = true;
+  syntaxHighlighting.enable = true;
+  oh-my-zsh = {
     enable = true;
-    enableCompletion = true;
-    autosuggestion.enable = false;
-    syntaxHighlighting.enable = false;
-    initContent = ''
-      [ -f ~/dotfiles/.zshrc ] && source ~/dotfiles/.zshrc
-    '';
+    theme = "robbyrussell";
+    plugins = [ "git" ];
   };
+  initContent = ''
+    [ -f ~/dotfiles/.zshrc ] && source ~/dotfiles/.zshrc
+  '';
+};
 
 home.file.".config/kitty/kitty.conf".source =
   config.lib.file.mkOutOfStoreSymlink "/home/richard/dotfiles/.config/kitty/kitty.conf";
 
-  programs.home-manager.enable = true;
+home.file.".config/hypr".source =
+  config.lib.file.mkOutOfStoreSymlink "/home/richard/dotfiles/.config/hypr";
+
+home.file.".config/quickshell".source =
+  config.lib.file.mkOutOfStoreSymlink "/home/richard/dotfiles/.config/quickshell";
+
 }
