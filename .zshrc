@@ -1,7 +1,3 @@
-export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="robbyrussell"
-plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
-source $ZSH/oh-my-zsh.sh
 
 # ============================================================
 #  Personal zsh config
@@ -12,8 +8,11 @@ source $ZSH/oh-my-zsh.sh
 # Nix fix
 export LOCALE_ARCHIVE=/usr/lib/locale/locale-archive
 
+# Build nix, TODO
+alias nixbs="sudo nixos-rebuild switch --flake ~/dotfiles/nix-config#nixos"
+
 # --- Quickshell ---
-alias qsrestart='pkill qs; sleep 0.5; qs -c ii &'
+alias qsrestart='pkill -9 -x quickshell 2>/dev/null; pkill quickshell 2>/dev/null; sleep 0.5; qs -c ii &'
 
 # --- Hyprland info ---
 alias hmon='hyprctl monitors'
@@ -593,11 +592,6 @@ sysmaint() {
     _sm_log+=("pacman -Syu${_sm_tab}$(( $(date +%s) - _sm_t0 ))")
 
     _sm_t0=$(date +%s)
-    echo "==> Updating package list..."
-    updtpkglist
-    _sm_log+=("update package list${_sm_tab}$(( $(date +%s) - _sm_t0 ))")
-
-    _sm_t0=$(date +%s)
     echo "==> Cleaning orphaned packages and cache..."
     cleanpkgs
     _sm_log+=("clean packages${_sm_tab}$(( $(date +%s) - _sm_t0 ))")
@@ -668,15 +662,8 @@ sysmaint() {
     echo "==> sysmaint done."
 }
 
-updtpkglist() {
-    pacman -Qqe > ~/dotfiles/pkglist.txt
-    cd ~/dotfiles && git add pkglist.txt
-    cd -
-}
-
 pushdots() {
     local msg="${1:-update dotfiles}"
-    updtpkglist
     cd ~/dotfiles
     # Untrack anything that's become a home-manager symlink before staging
     find . -type l -lname '/nix/store/*' -exec git rm --cached {} \; 2>/dev/null
@@ -812,7 +799,7 @@ vpnon() {
     esac
 
     echo "Connecting to $conf..."
-    sudo systemctl start wg-quick@$conf || { echo "Failed to connect to $conf." >&2; return 1; }
+    sudo systemctl start wg-quick-$conf || { echo "Failed to connect to $conf." >&2; return 1; }
     echo "Connected to $conf."
     if [[ "$pf" == true ]]; then
         echo "Public port: $(getpport)"
@@ -824,7 +811,7 @@ vpnoff() {
     local active=()
     local svc
     for svc in atvpn atvpn_pf huvpn huvpn_pf; do
-        if systemctl is-active --quiet wg-quick@$svc 2>/dev/null; then
+        if systemctl is-active --quiet wg-quick-$svc 2>/dev/null; then
             active+=($svc)
         fi
     done
@@ -836,7 +823,7 @@ vpnoff() {
 
     for svc in "${active[@]}"; do
         echo "Disconnecting $svc..."
-        sudo systemctl stop wg-quick@$svc
+        sudo systemctl stop wg-quick-$svc
     done
     sleep 3 && myip
 }
@@ -942,4 +929,4 @@ alias plasma-scores="sqlite3 ~/.local/share/kactivitymanagerd/resources/database
     AND initiatingAgent NOT LIKE 'org.kde.krunner' \
     AND initiatingAgent NOT LIKE '%desktop-portal%' \
     ORDER BY cachedScore DESC LIMIT 15;\""
-. "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"
+[ -f "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh" ] && . "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"

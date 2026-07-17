@@ -117,34 +117,6 @@ Singleton {
     // Combined built-in and user actions
     property var allActions: searchActions.concat(userActionScripts)
 
-    property string mathResult: ""
-
-    Timer {
-        id: nonAppResultsTimer
-        interval: Config.options.search.nonAppResultDelay
-        onTriggered: {
-            let expr = root.query;
-            if (expr.startsWith(Config.options.search.prefix.math)) {
-                expr = expr.slice(Config.options.search.prefix.math.length);
-            }
-            mathProc.calculateExpression(expr);
-        }
-    }
-
-    Process {
-        id: mathProc
-        property list<string> baseCommand: ["qalc", "-t"]
-        function calculateExpression(expression) {
-            mathProc.running = false;
-            mathProc.command = baseCommand.concat(expression);
-            mathProc.running = true;
-        }
-        stdout: SplitParser {
-            onRead: data => {
-                root.mathResult = data;
-            }
-        }
-    }
 
     property list<var> results: {
         // Search results are handled here
@@ -204,18 +176,6 @@ Singleton {
         }
 
         ////////////////// Init ///////////////////
-        nonAppResultsTimer.restart();
-        const mathResultObject = resultComp.createObject(null, {
-            name: root.mathResult,
-            verb: Translation.tr("Copy"),
-            type: Translation.tr("Math result"),
-            fontType: LauncherSearchResult.FontType.Monospace,
-            iconName: 'calculate',
-            iconType: LauncherSearchResult.IconType.Material,
-            execute: () => {
-                Quickshell.clipboardText = root.mathResult;
-            }
-        });
         const appResultObjects = AppSearch.fuzzyQuery(StringUtils.cleanPrefix(root.query, Config.options.search.prefix.app)).map(entry => {
             return resultComp.createObject(null, {
                 type: Translation.tr("App"),
@@ -302,13 +262,9 @@ Singleton {
 
         //////// Prioritized by prefix /////////
         let result = [];
-        const startsWithNumber = /^\d/.test(root.query);
-        const startsWithMathPrefix = root.query.startsWith(Config.options.search.prefix.math);
         const startsWithShellCommandPrefix = root.query.startsWith(Config.options.search.prefix.shellCommand);
         const startsWithWebSearchPrefix = root.query.startsWith(Config.options.search.prefix.webSearch);
-        if (startsWithNumber || startsWithMathPrefix) {
-            result.push(mathResultObject);
-        } else if (startsWithShellCommandPrefix) {
+        if (startsWithShellCommandPrefix) {
             result.push(commandResultObject);
         } else if (startsWithWebSearchPrefix) {
             result.push(webSearchResultObject);
@@ -324,8 +280,6 @@ Singleton {
         if (Config.options.search.prefix.showDefaultActionsWithoutPrefix) {
             if (!startsWithShellCommandPrefix)
                 result.push(commandResultObject);
-            if (!startsWithNumber && !startsWithMathPrefix)
-                result.push(mathResultObject);
             if (!startsWithWebSearchPrefix)
                 result.push(webSearchResultObject);
         }

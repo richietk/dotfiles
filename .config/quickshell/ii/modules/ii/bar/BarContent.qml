@@ -106,11 +106,6 @@ Item { // Bar content region
                 alwaysShowAllResources: root.useShortenedForm === 2
                 Layout.fillWidth: root.useShortenedForm === 2
             }
-
-            Media {
-                visible: root.useShortenedForm < 2
-                Layout.fillWidth: true
-            }
         }
 
         VerticalBarSeparator {

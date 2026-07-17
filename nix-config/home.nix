@@ -30,7 +30,9 @@
     unrar
     github-cli
     yq-go
+    python3
     uv
+    libreoffice-still
     pnpm
     plocate
     nixfmt
@@ -54,6 +56,9 @@
   hyprpaper
   wlogout
   fuzzel
+  grim
+  slurp
+  wf-recorder
 quickshell
 kdePackages.qt5compat
 kdePackages.qtpositioning
@@ -61,6 +66,12 @@ claude-code
 doublecmd
 restic
 git
+libnatpmp
+qview
+mpv
+wl-clipboard
+rbw
+pinentry-qt
   ];
 
 programs.zsh = {
@@ -76,6 +87,45 @@ programs.zsh = {
   initContent = ''
     [ -f ~/dotfiles/.zshrc ] && source ~/dotfiles/.zshrc
   '';
+};
+
+xdg.mimeApps = {
+  enable = true;
+  defaultApplications = {
+    "image/jpeg"    = "qview.desktop";
+    "image/png"     = "qview.desktop";
+    "image/gif"     = "qview.desktop";
+    "image/webp"    = "qview.desktop";
+    "image/bmp"     = "qview.desktop";
+    "image/tiff"    = "qview.desktop";
+    "image/svg+xml" = "qview.desktop";
+    "image/x-icon"  = "qview.desktop";
+    "video/mp4"             = "mpv.desktop";
+    "video/x-matroska"      = "mpv.desktop";
+    "video/webm"            = "mpv.desktop";
+    "video/avi"             = "mpv.desktop";
+    "video/quicktime"       = "mpv.desktop";
+    "video/x-msvideo"       = "mpv.desktop";
+    "video/mpeg"            = "mpv.desktop";
+    "video/ogg"             = "mpv.desktop";
+    "video/x-flv"           = "mpv.desktop";
+    "video/3gpp"            = "mpv.desktop";
+  };
+};
+
+xdg.configFile."mimeapps.list".force = true;
+
+home.file.".config/rbw/config.json".text = builtins.toJSON {
+  email                 = "takacs.richard121@gmail.com";
+  sso_id                = null;
+  base_url              = "https://api.bitwarden.eu";
+  identity_url          = "https://identity.bitwarden.eu";
+  ui_url                = "https://vault.bitwarden.eu";
+  notifications_url     = "https://notifications.bitwarden.eu";
+  lock_timeout          = 3600;
+  sync_interval         = 3600;
+  pinentry              = "pinentry";
+  client_cert_path      = null;
 };
 
 home.file.".config/kitty/kitty.conf".source =

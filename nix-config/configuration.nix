@@ -26,6 +26,8 @@
 
   # Enable networking
   networking.networkmanager.enable = true;
+  networking.networkmanager.dns = "systemd-resolved";
+  services.resolved.enable = true;
 
   # Set your time zone.
   time.timeZone = "Europe/Vienna";
@@ -49,6 +51,14 @@
   # You can disable this if you're only using the Wayland session.
   services.xserver.enable = true;
 
+services.power-profiles-daemon.enable = false; # conflicts with TLP; KDE enables this by default
+services.tlp.enable = true;
+
+services.asusd.enable = true;
+
+systemd.tmpfiles.rules = [
+  "d /etc/asusd 0755 root root -"
+];
   # Enable the KDE Plasma Desktop Environment.
   services.displayManager.sddm.enable = true;
   services.desktopManager.plasma6.enable = true;
@@ -110,8 +120,17 @@ shell = pkgs.zsh;
   environment.systemPackages = with pkgs; [
   #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
   #  wget
+  wireguard-tools
+  ffmpeg
   ];
- 
+
+  networking.wg-quick.interfaces = {
+    atvpn = { autostart = true; configFile = "/etc/wireguard/atvpn.conf"; };
+    atvpn_pf = { autostart = false; configFile = "/etc/wireguard/atvpn_pf.conf"; };
+    huvpn = { autostart = false; configFile = "/etc/wireguard/huvpn.conf"; };
+    huvpn_pf = { autostart = false; configFile = "/etc/wireguard/huvpn_pf.conf"; };
+  };
+
  fonts.packages = with pkgs; [
   material-symbols
   nerd-fonts.jetbrains-mono
@@ -121,6 +140,12 @@ shell = pkgs.zsh;
 hardware.bluetooth.enable = true;
 hardware.bluetooth.powerOnBoot = true;
 services.blueman.enable = true;
+
+hardware.bluetooth.settings = {
+  General = {
+    Experimental = true;
+  };
+};
 
   programs.zsh.enable = true;
 
@@ -154,5 +179,60 @@ services.blueman.enable = true;
 
  # nixpkgs
  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+ nix.settings.http2 = false;
+
+ boot.kernel.sysctl."net.ipv4.tcp_mtu_probing" = 1;
+
+  systemd.services.thermal-guard = {
+    description = "Thermal-based CPU frequency guard";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "simple";
+      Restart = "always";
+      RestartSec = "5s";
+      ExecStart = pkgs.writeShellScript "thermal-guard" ''
+        # Discover k10temp hwmon path dynamically — the index can shift between boots
+        TEMP_INPUT=""
+        for dir in /sys/class/hwmon/hwmon*; do
+          if [ "$(cat "$dir/name" 2>/dev/null)" = "k10temp" ]; then
+            TEMP_INPUT="$dir/temp1_input"
+            break
+          fi
+        done
+        if [ -z "$TEMP_INPUT" ]; then
+          echo "k10temp hwmon device not found, exiting" >&2
+          exit 1
+        fi
+        echo "Monitoring CPU temperature at $TEMP_INPUT"
+
+        MAX_FREQ=$(cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq)
+        THROTTLE_FREQ=2000000  # 2 GHz cap when hot
+        THROTTLE_TEMP=85000    # millidegrees
+        RESTORE_TEMP=75000     # millidegrees (hysteresis)
+        THROTTLED=0
+
+        set_max_freq() {
+          for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq; do
+            echo "$1" > "$f"
+          done
+        }
+
+        while true; do
+          TEMP=$(cat "$TEMP_INPUT" 2>/dev/null) || { sleep 5; continue; }
+          if [ "$THROTTLED" -eq 0 ] && [ "$TEMP" -ge "$THROTTLE_TEMP" ]; then
+            echo "CPU hot ($(( TEMP / 1000 ))°C), throttling to 2 GHz"
+            set_max_freq "$THROTTLE_FREQ"
+            THROTTLED=1
+          elif [ "$THROTTLED" -eq 1 ] && [ "$TEMP" -lt "$RESTORE_TEMP" ]; then
+            echo "CPU cooled ($(( TEMP / 1000 ))°C), restoring max frequency"
+            set_max_freq "$MAX_FREQ"
+            THROTTLED=0
+          fi
+          sleep 5
+        done
+      '';
+    };
+  };
 
 }

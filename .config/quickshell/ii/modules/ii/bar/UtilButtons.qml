@@ -84,27 +84,6 @@ Item {
             }
         }
 
-        Loader {
-            active: Config.options.bar.utilButtons.showDarkModeToggle
-            visible: Config.options.bar.utilButtons.showDarkModeToggle
-            sourceComponent: CircleUtilButton {
-                Layout.alignment: Qt.AlignVCenter
-                onClicked: event => {
-                    if (Appearance.m3colors.darkmode) {
-                        Quickshell.execDetached(["bash", "-c", `${Directories.wallpaperSwitchScriptPath} --mode light --noswitch`])
-                    } else {
-                        Quickshell.execDetached(["bash", "-c", `${Directories.wallpaperSwitchScriptPath} --mode dark --noswitch`])
-                    }
-                }
-                MaterialSymbol {
-                    horizontalAlignment: Qt.AlignHCenter
-                    fill: 0
-                    text: Appearance.m3colors.darkmode ? "light_mode" : "dark_mode"
-                    iconSize: Appearance.font.pixelSize.large
-                    color: Appearance.colors.colOnLayer2
-                }
-            }
-        }
 
         Loader {
             active: Config.options.bar.utilButtons.showPerformanceProfileToggle

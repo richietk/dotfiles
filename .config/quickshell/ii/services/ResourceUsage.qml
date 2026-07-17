@@ -27,6 +27,8 @@ Singleton {
     property string maxAvailableCpuString: "--"
     property int moboTemp: 0
     property int cpuTemp: 0
+    property string moboTempPath: "/sys/class/hwmon/hwmon3/temp1_input"
+    property string cpuTempPath: "/sys/class/hwmon/hwmon4/temp1_input"
 
     readonly property int historyLength: Config?.options.resources.historyLength ?? 60
     property list<real> cpuUsageHistory: []
@@ -109,8 +111,25 @@ Singleton {
 
 	FileView { id: fileMeminfo; path: "/proc/meminfo" }
     FileView { id: fileStat; path: "/proc/stat" }
-    FileView { id: fileMoboTemp; path: "/sys/class/hwmon/hwmon1/temp1_input" }
-    FileView { id: fileCpuTemp;  path: "/sys/class/hwmon/hwmon5/temp1_input" }
+    FileView { id: fileMoboTemp; path: root.moboTempPath }
+    FileView { id: fileCpuTemp;  path: root.cpuTempPath }
+
+    // Discover hwmon paths by driver name so indices don't need to be hardcoded.
+    Process {
+        id: discoverTempPaths
+        running: true
+        command: ["bash", "-c", "for d in /sys/class/hwmon/hwmon*/; do n=$(cat \"$d/name\" 2>/dev/null); [ \"$n\" = \"acpitz\" ] && echo \"mobo:${d}temp1_input\"; [ \"$n\" = \"k10temp\" ] && echo \"cpu:${d}temp1_input\"; done"]
+        stdout: SplitParser {
+            onRead: data => {
+                const sep = data.indexOf(":")
+                if (sep < 0) return
+                const type = data.substring(0, sep).trim()
+                const path = data.substring(sep + 1).trim()
+                if (type === "mobo") root.moboTempPath = path
+                else if (type === "cpu") root.cpuTempPath = path
+            }
+        }
+    }
 
     Process {
         id: findCpuMaxFreqProc
