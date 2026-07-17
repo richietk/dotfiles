@@ -5,11 +5,8 @@
 
 
 
-# Nix fix
-export LOCALE_ARCHIVE=/usr/lib/locale/locale-archive
-
 # Build nix, TODO
-alias nixbs="sudo nixos-rebuild switch --flake ~/dotfiles/nix-config#nixos"
+alias nixbs="sudo nixos-rebuild switch --flake ~/dotfiles/nix-config#nixos && pushdots"
 
 # --- Quickshell ---
 alias qsrestart='pkill -9 -x quickshell 2>/dev/null; pkill quickshell 2>/dev/null; sleep 0.5; qs -c ii &'
@@ -283,8 +280,6 @@ alias docs="cd $HOME/Documents"
 # --- System shortcuts ---
 alias syslog='journalctl -f'
 alias slep='systemctl suspend'
-# NOTE: $1/$2 are escaped (\$1 \$2) so zsh leaves them for perl, not the shell.
-alias snakern="perl-rename 's/([a-z])([A-Z])/\$1_\$2/g; y/A-Z/a-z/; s/[\s\-]+/_/g; s/[^a-z0-9_.]//g; s/_+/_/g' *"
 
 # --- Per-project venv management (default name: .venv) ---
 venv-create() {
@@ -419,14 +414,6 @@ killn() {
     kill ${(f)"$(pgrep "$1")"}
 }
 
-# Install/remove pkg
-pmddl() {
-    sudo pacman -S "$1"
-}
-
-pmrm() {
-    sudo pacman -R "$1"
-}
 
 # Check files if identical
 sametest() {
@@ -520,146 +507,15 @@ sco() {
     fi
 }
 
-cleanpkgs() {
-    sudo pacman -Rns ${(f)"$(pacman -Qdtq)"}
-    sudo paccache -rk2
-    sudo paccache -ruk0
-    yay -Sc --noconfirm
-}
 
-cleanup() {
-    echo "🗑️ Emptying Root Trash..."
-    sudo find /root/.local/share/Trash -mindepth 1 -delete 2>/dev/null
-
-    echo "🗑️ Emptying User Trash..."
-    find ~/.local/share/Trash/files -mindepth 1 -delete 2>/dev/null
-
-    echo "📦 Cleaning unused Flatpaks..."
-    flatpak uninstall --unused -y
-
-    if command -v pnpm &>/dev/null; then
-        echo "🌐 Pruning pnpm store..."
-        pnpm store prune
-    else
-        echo "⚠️ pnpm not found or not in PATH, skipping..."
-    fi
-
-    echo "🧹 Checking for orphaned pacman packages..."
-    local orphans=(${(f)"$(pacman -Qdtq)"})
-    if (( ${#orphans[@]} )); then
-        sudo pacman -Rns "${orphans[@]}"
-    else
-        echo "✅ No orphaned packages to remove."
-    fi
-
-    echo "🗄️ Cleaning pacman cache..."
-    sudo paccache -rk2
-    sudo paccache -ruk0
-
-    echo "🎉 System cleanup complete!"
-}
-
-alias updt="sudo pacman -Syu"
-
-sysmaint() {
-    local _nw_iface _nw_logfile _nw_pid
-    local -a _sm_log
-    local _sm_tab=$'\t'
-    local _sm_t0 _sm_total_start=$(date +%s)
-
-    echo "==> Sourcing ~/.zshrc..."
-    source ~/.zshrc
-
-    # --- Start netwatch in background (parallel to all maintenance) ---
-    _nw_logfile=$(mktemp /tmp/sysmaint_nw_log.XXXXXX)
-    if ip link show atvpn &>/dev/null; then
-        _nw_iface="atvpn"
-    else
-        echo "==> [netwatch] atvpn not found, falling back to default interface"
-        _nw_iface="$(ip route show default 2>/dev/null | awk '/default/ {print $5; exit}')"
-    fi
-    "$HOME/dotfiles/scripts/netwatch" "$_nw_iface" > "$_nw_logfile" 2>&1 &
-    _nw_pid=$!
-
-    _sm_t0=$(date +%s)
-    echo "==> Running pacman -Syu..."
-    sudo pacman -Syu || {
-        echo "pacman -Syu failed." >&2
-        kill "$_nw_pid" 2>/dev/null
-        rm -f "$_nw_logfile"
-        return 1
-    }
-    _sm_log+=("pacman -Syu${_sm_tab}$(( $(date +%s) - _sm_t0 ))")
-
-    _sm_t0=$(date +%s)
-    echo "==> Cleaning orphaned packages and cache..."
-    cleanpkgs
-    _sm_log+=("clean packages${_sm_tab}$(( $(date +%s) - _sm_t0 ))")
-
-    _sm_t0=$(date +%s)
-    echo "==> Pushing dotfiles..."
-    pushdots
-    _sm_log+=("push dotfiles${_sm_tab}$(( $(date +%s) - _sm_t0 ))")
-
-    _sm_t0=$(date +%s)
-    echo "==> Running yay -Syu..."
-    yay -Syu --noconfirm --answerclean=None --answerdiff=None --answeredit=None --answerupgrade=None
-    _sm_log+=("yay -Syu${_sm_tab}$(( $(date +%s) - _sm_t0 ))")
-
-    # Local backup: autodetect — run only if SSD is mounted, no prompt
-    _sm_t0=$(date +%s)
-    if mountpoint -q "$SSD_MOUNT"; then
-        echo "==> Local SSD detected, running contentbak..."
-        contentbak
-    else
-        echo "==> Local SSD not mounted ($SSD_MOUNT), skipping local backup."
-    fi
-    _sm_log+=("local backup${_sm_tab}$(( $(date +%s) - _sm_t0 ))")
-
-    _sm_t0=$(date +%s)
-    echo "==> Running downloads organizer..."
-    python3 /home/richard/dotfiles/scripts/downloads_organizer.py
-    _sm_log+=("downloads organizer${_sm_tab}$(( $(date +%s) - _sm_t0 ))")
-
-    _sm_t0=$(date +%s)
-    echo "==> Running music manager..."
-    music_manager ~/Music
-    _sm_log+=("music manager${_sm_tab}$(( $(date +%s) - _sm_t0 ))")
-
-    # --- Stop netwatch and print its last drawn frame ---
-    kill "$_nw_pid" 2>/dev/null
-    wait "$_nw_pid" 2>/dev/null
-
-    echo ""
-    echo "==> Network traffic summary (netwatch, last snapshot):"
-    if [[ -s "$_nw_logfile" ]]; then
-        local _nw_clearseq=$(clear) _nw_off
-        _nw_off=$(grep -abo -F "$_nw_clearseq" "$_nw_logfile" 2>/dev/null | tail -1 | cut -d: -f1)
-        if [[ -n "$_nw_off" ]]; then
-            tail -c +$(( _nw_off + ${#_nw_clearseq} + 1 )) "$_nw_logfile"
-        else
-            tail -n 40 "$_nw_logfile"
-        fi
-    else
-        echo "  (no traffic recorded)"
-    fi
-
-    rm -f "$_nw_logfile"
-
-    echo ""
-    echo "==> Time summary:"
-    printf '%-25s  %s\n' "SECTION" "SECONDS"
-    printf '─%.0s' {1..40}; echo ""
-    local _sm_name _sm_secs _sm_line
-    for _sm_line in "${_sm_log[@]}"; do
-        IFS=$'\t' read -r _sm_name _sm_secs <<< "$_sm_line"
-        printf '%-25s  %s\n' "$_sm_name" "$_sm_secs"
-    done
-    printf '─%.0s' {1..40}; echo ""
-    printf '%-25s  %s\n' "TOTAL" "$(( $(date +%s) - _sm_total_start ))"
-
-    echo ""
-    echo "==> sysmaint done."
+nixcleanup() {
+    echo "==> Deleting generations older than 7 days..."
+    sudo nix-collect-garbage --delete-older-than 7d
+    echo "==> Running store GC..."
+    nix store gc
+    echo "==> Optimising store..."
+    nix store optimise
+    echo "==> Done."
 }
 
 pushdots() {
@@ -677,10 +533,6 @@ up() {
     repeat "$n"; do cd ..; done
 }
 
-# Locate in custom DBs
-ff() {
-    plocate -d ~/.documents.db:~/.downloads.db "$@"
-}
 
 # Copy a file's contents, or a command's output, to the clipboard
 copy() {

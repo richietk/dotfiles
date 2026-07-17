@@ -1,81 +1,80 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
-
 { config, pkgs, ... }:
 
-{
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
+let
+  touchpad-filter = pkgs.writers.writePython3Bin "touchpad-filter"
+    { libraries = with pkgs.python3Packages; [ evdev ]; flakeIgnore = [ "E265" "E501" ]; }
+    (builtins.readFile ../scripts/touchpad-filter);
 
-  # Bootloader.
+  reset-touchpad = pkgs.writeShellScriptBin "reset-touchpad"
+    (builtins.readFile ../scripts/reset-touchpad);
+
+  sddm-sugar-candy = pkgs.stdenv.mkDerivation {
+    name = "sddm-sugar-candy";
+    src = ../system/sddm-themes;
+    installPhase = ''
+      mkdir -p $out/share/sddm/themes/sugar-candy
+      cp -r . $out/share/sddm/themes/sugar-candy/
+    '';
+  };
+in
+{
+  imports = [ ./hardware-configuration.nix ];
+
+  # Bootloader
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-
-  # Use latest kernel.
   boot.kernelPackages = pkgs.linuxPackages_latest;
+  boot.kernel.sysctl."net.ipv4.tcp_mtu_probing" = 1;
 
-  networking.hostName = "nixos"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
-
-  # Enable networking
+  # Network
+  networking.hostName = "nixos";
   networking.networkmanager.enable = true;
   networking.networkmanager.dns = "systemd-resolved";
   services.resolved.enable = true;
+  networking.wg-quick.interfaces = {
+    atvpn    = { autostart = true;  configFile = "/etc/wireguard/atvpn.conf"; };
+    atvpn_pf = { autostart = false; configFile = "/etc/wireguard/atvpn_pf.conf"; };
+    huvpn    = { autostart = false; configFile = "/etc/wireguard/huvpn.conf"; };
+    huvpn_pf = { autostart = false; configFile = "/etc/wireguard/huvpn_pf.conf"; };
+  };
 
-  # Set your time zone.
+  # Locale / timezone
   time.timeZone = "Europe/Vienna";
-
-  # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
-
   i18n.extraLocaleSettings = {
-    LC_ADDRESS = "de_AT.UTF-8";
+    LC_ADDRESS        = "de_AT.UTF-8";
     LC_IDENTIFICATION = "de_AT.UTF-8";
-    LC_MEASUREMENT = "de_AT.UTF-8";
-    LC_MONETARY = "de_AT.UTF-8";
-    LC_NAME = "de_AT.UTF-8";
-    LC_NUMERIC = "de_AT.UTF-8";
-    LC_PAPER = "de_AT.UTF-8";
-    LC_TELEPHONE = "de_AT.UTF-8";
-    LC_TIME = "de_AT.UTF-8";
+    LC_MEASUREMENT    = "de_AT.UTF-8";
+    LC_MONETARY       = "de_AT.UTF-8";
+    LC_NAME           = "de_AT.UTF-8";
+    LC_NUMERIC        = "de_AT.UTF-8";
+    LC_PAPER          = "de_AT.UTF-8";
+    LC_TELEPHONE      = "de_AT.UTF-8";
+    LC_TIME           = "de_AT.UTF-8";
   };
-
-  # Enable the X11 windowing system.
-  # You can disable this if you're only using the Wayland session.
-  services.xserver.enable = true;
-
-services.power-profiles-daemon.enable = false; # conflicts with TLP; KDE enables this by default
-services.tlp.enable = true;
-
-services.asusd.enable = true;
-
-systemd.tmpfiles.rules = [
-  "d /etc/asusd 0755 root root -"
-];
-  # Enable the KDE Plasma Desktop Environment.
-  services.displayManager.sddm.enable = true;
-  services.desktopManager.plasma6.enable = true;
-
-  # Configure keymap in X11
-  services.xserver.xkb = {
-    layout = "hu";
-    variant = "";
-  };
-
-  # Configure console keymap
   console.keyMap = "hu";
 
-  # Enable CUPS to print documents.
-  services.printing.enable = true;
+  # Desktop
+  services.xserver.enable = true;
+  services.xserver.xkb = { layout = "hu"; variant = ""; };
+  services.displayManager.sddm = {
+    enable = true;
+    theme = "sugar-candy";
+    settings = {
+      Theme = {
+        CursorTheme = "GoogleDot-White";
+        Font = "Noto Sans,10,-1,0,400,0,0,0,0,0,0,0,0,0,0,1";
+      };
+      Users = {
+        MaximumUid = 60513;
+        MinimumUid = 1000;
+      };
+    };
+  };
+  services.desktopManager.plasma6.enable = true;
+  programs.hyprland.enable = true;
 
-  # Enable sound with pipewire.
+  # Audio
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
@@ -83,106 +82,91 @@ systemd.tmpfiles.rules = [
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
-    # If you want to use JACK applications, uncomment this
-    #jack.enable = true;
-
-    # use the example session manager (no others are packaged yet so this is enabled by default,
-    # no need to redefine it in your config for now)
-    #media-session.enable = true;
   };
 
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
+  # Printing
+  services.printing.enable = true;
 
-  # Define a user account. Don't forget to set a password with ‘passwd’.
+  # Bluetooth
+  hardware.bluetooth.enable = true;
+  hardware.bluetooth.powerOnBoot = true;
+  hardware.bluetooth.settings.General.Experimental = true;
+  services.blueman.enable = true;
+
+  # Power management
+  services.power-profiles-daemon.enable = false;
+  services.tlp.enable = true;
+  services.asusd.enable = true;
+  systemd.tmpfiles.rules = [ "d /etc/asusd 0755 root root -" ];
+
+  # Fonts
+  fonts.packages = with pkgs; [
+    material-symbols
+    nerd-fonts.jetbrains-mono
+  ];
+
+  # Nix settings
+  nixpkgs.config.allowUnfree = true;
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.http2 = false;
+
+  # Shell
+  programs.firefox.enable = true;
+  programs.zsh.enable = true;
+
+  # Users
   users.users."richard" = {
     isNormalUser = true;
     description = "richard";
-    extraGroups = [ "networkmanager" "wheel" ];
-shell = pkgs.zsh;
-    packages = with pkgs; [
-      kdePackages.kate
-    #  thunderbird
-    ];
+    extraGroups = [ "networkmanager" "wheel" "input" ];
+    shell = pkgs.zsh;
+    packages = with pkgs; [ kdePackages.kate ];
   };
 
-  # Install firefox.
-  programs.firefox.enable = true;
-
-  # add hyprland
-  programs.hyprland.enable = true;
-
-  # Allow unfree packages
-  nixpkgs.config.allowUnfree = true;
-
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
+  # System packages
   environment.systemPackages = with pkgs; [
-  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-  #  wget
-  wireguard-tools
-  ffmpeg
+    wireguard-tools
+    ffmpeg
+    touchpad-filter
+    reset-touchpad
+    sddm-sugar-candy
   ];
 
-  networking.wg-quick.interfaces = {
-    atvpn = { autostart = true; configFile = "/etc/wireguard/atvpn.conf"; };
-    atvpn_pf = { autostart = false; configFile = "/etc/wireguard/atvpn_pf.conf"; };
-    huvpn = { autostart = false; configFile = "/etc/wireguard/huvpn.conf"; };
-    huvpn_pf = { autostart = false; configFile = "/etc/wireguard/huvpn_pf.conf"; };
+  # udev: allow input group to access uinput (needed by touchpad-filter)
+  services.udev.extraRules = ''
+    KERNEL=="uinput", GROUP="input", MODE="0660"
+  '';
+
+  # sudoers: passwordless reset-touchpad
+  security.sudo.extraRules = [
+    {
+      users = [ "richard" ];
+      commands = [{
+        command = "${reset-touchpad}/bin/reset-touchpad";
+        options = [ "NOPASSWD" ];
+      }];
+    }
+  ];
+
+  # Touchpad BTN_LEFT filter (ASUS VivoBook stuck-click firmware bug)
+  systemd.user.services.touchpad-filter = {
+    description = "Touchpad BTN_LEFT filter";
+    wantedBy = [ "graphical-session.target" ];
+    after = [ "graphical-session.target" ];
+    serviceConfig = {
+      Type = "simple";
+      ExecStart = "${touchpad-filter}/bin/touchpad-filter";
+      Restart = "on-failure";
+      RestartSec = "3s";
+      StartLimitIntervalSec = "120s";
+      StartLimitBurst = 5;
+      StandardOutput = "journal";
+      StandardError = "journal";
+      SyslogIdentifier = "touchpad-filter";
+    };
   };
 
- fonts.packages = with pkgs; [
-  material-symbols
-  nerd-fonts.jetbrains-mono
-];
-
-
-hardware.bluetooth.enable = true;
-hardware.bluetooth.powerOnBoot = true;
-services.blueman.enable = true;
-
-hardware.bluetooth.settings = {
-  General = {
-    Experimental = true;
-  };
-};
-
-  programs.zsh.enable = true;
-
-
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
-  # programs.mtr.enable = true;
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  # };
-
-  # List services that you want to enable:
-
-  # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
-
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
-
-  # This value determines the NixOS release from which the default
-  # settings for stateful data, like file locations and database versions
-  # on your system were taken. It‘s perfectly fine and recommended to leave
-  # this value at the release version of the first install of this system.
-  # Before changing this value read the documentation for this option
-  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "26.05"; # Did you read the comment?
-
- # nixpkgs
- nix.settings.experimental-features = [ "nix-command" "flakes" ];
- nix.settings.http2 = false;
-
- boot.kernel.sysctl."net.ipv4.tcp_mtu_probing" = 1;
-
+  # Thermal guard: caps CPU freq when temperature exceeds threshold
   systemd.services.thermal-guard = {
     description = "Thermal-based CPU frequency guard";
     wantedBy = [ "multi-user.target" ];
@@ -192,7 +176,6 @@ hardware.bluetooth.settings = {
       Restart = "always";
       RestartSec = "5s";
       ExecStart = pkgs.writeShellScript "thermal-guard" ''
-        # Discover k10temp hwmon path dynamically — the index can shift between boots
         TEMP_INPUT=""
         for dir in /sys/class/hwmon/hwmon*; do
           if [ "$(cat "$dir/name" 2>/dev/null)" = "k10temp" ]; then
@@ -207,9 +190,9 @@ hardware.bluetooth.settings = {
         echo "Monitoring CPU temperature at $TEMP_INPUT"
 
         MAX_FREQ=$(cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq)
-        THROTTLE_FREQ=2000000  # 2 GHz cap when hot
-        THROTTLE_TEMP=85000    # millidegrees
-        RESTORE_TEMP=75000     # millidegrees (hysteresis)
+        THROTTLE_FREQ=2000000
+        THROTTLE_TEMP=85000
+        RESTORE_TEMP=75000
         THROTTLED=0
 
         set_max_freq() {
@@ -235,4 +218,5 @@ hardware.bluetooth.settings = {
     };
   };
 
+  system.stateVersion = "26.05";
 }
