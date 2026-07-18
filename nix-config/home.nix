@@ -129,6 +129,7 @@
     client_cert_path  = null;
   };
 
+
   # --- Dotfile symlinks (all point back into ~/dotfiles for mutability) ---
   home.file.".gitconfig".source =
     config.lib.file.mkOutOfStoreSymlink "/home/richard/dotfiles/.gitconfig";

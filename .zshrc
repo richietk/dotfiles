@@ -8,6 +8,9 @@
 # Build nix, TODO
 alias nixbs="sudo nixos-rebuild switch --flake ~/dotfiles/nix-config#nixos && pushdots"
 
+# --- Boot time stats ---
+alias bootstats='python3 ~/dotfiles/scripts/bootstats'
+
 # --- Quickshell ---
 alias qsrestart='pkill -9 -x quickshell 2>/dev/null; pkill quickshell 2>/dev/null; sleep 0.5; qs -c ii &'
 
@@ -276,6 +279,7 @@ alias config='cd ~/.config'
 alias kdeconf='cd ~/.config'
 alias ddls="cd $HOME/Downloads"
 alias docs="cd $HOME/Documents"
+alias dotf="cd $HOME/dotfiles"
 
 # --- System shortcuts ---
 alias syslog='journalctl -f'

@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+import re, subprocess, sys
+
+def to_sec(s):
+    s = s.strip()
+    if s.endswith("ms"): return float(s[:-2]) / 1000
+    if s.endswith("s"):  return float(s[:-1])
+    return 0.0
+
+boots = subprocess.run(
+    ["journalctl", "--list-boots", "--no-pager"],
+    capture_output=True, text=True
+).stdout.strip().splitlines()
+
+indices = [line.split()[0] for line in boots if line.strip()]
+lines = []
+for idx in indices:
+    out = subprocess.run(
+        ["journalctl", "-b", idx, "--no-pager", "-q"],
+        capture_output=True, text=True
+    ).stdout
+    for line in out.splitlines():
+        if "systemd[1]: Startup finished" in line:
+            m = re.search(r"Startup finished in (.+?)(?:\s*systemd|\.$)", line)
+            if m:
+                lines.append(m.group(1).strip().rstrip("."))
+            break
+
+fields = ["firmware", "loader", "kernel", "initrd", "userspace", "total"]
+data = {f: [] for f in fields}
+for line in lines:
+    for f in fields[:-1]:
+        m = re.search(r"([\d.]+(?:ms|s))\s+\(" + f + r"\)", line)
+        if m: data[f].append(to_sec(m.group(1)))
+    m = re.search(r"=\s*([\d.]+s)", line)
+    if m: data["total"].append(to_sec(m.group(1)))
+
+analyzed = len(data["total"])
+print(f"boots: {analyzed} analyzed / {len(indices)} found in logs")
+print(f"  {'phase':<12} {'avg':>7}  {'min':>7}  {'max':>7}")
+for f in fields:
+    vals = data[f]
+    if vals:
+        print(f"  {f:<12} {sum(vals)/len(vals):>6.2f}s  {min(vals):>6.2f}s  {max(vals):>6.2f}s")

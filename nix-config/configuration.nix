@@ -37,6 +37,8 @@ in
     huvpn    = { autostart = false; configFile = "/etc/wireguard/huvpn.conf"; };
     huvpn_pf = { autostart = false; configFile = "/etc/wireguard/huvpn_pf.conf"; };
   };
+ services.vnstat.enable = true;
+ services.arbtt.enable = true;
 
   # Locale / timezone
   time.timeZone = "Europe/Vienna";
