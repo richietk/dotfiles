@@ -75,12 +75,26 @@
     pinentry-qt
     just
     awatcher
+    aw-server-rust
   ];
+
+  systemd.user.services.aw-server-rust = {
+    Unit = {
+      Description = "ActivityWatch server (Rust)";
+      After = [ "graphical-session.target" ];
+    };
+    Install.WantedBy = [ "graphical-session.target" ];
+    Service = {
+      ExecStart = "${pkgs.aw-server-rust}/bin/aw-server-rust";
+      Restart = "on-failure";
+    };
+  };
 
   systemd.user.services.awatcher = {
     Unit = {
       Description = "awatcher activity tracker";
-      After = [ "graphical-session.target" ];
+      After = [ "graphical-session.target" "aw-server-rust.service" ];
+      Requires = [ "aw-server-rust.service" ];
     };
     Install.WantedBy = [ "graphical-session.target" ];
     Service = {
