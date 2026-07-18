@@ -1,1 +1,3 @@
 .config/quickshell/** linguist-vendored
+system/sddm-themes/** linguist-vendored
+.config/hypr/hyprland/scripts/fuzzel-emoji.sh linguist-vendored
