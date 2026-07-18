@@ -81,11 +81,11 @@
   systemd.user.services.aw-server-rust = {
     Unit = {
       Description = "ActivityWatch server (Rust)";
-      After = [ "graphical-session.target" ];
+      After = [ "default.target" ];
     };
-    Install.WantedBy = [ "graphical-session.target" ];
+    Install.WantedBy = [ "default.target" ];
     Service = {
-      ExecStart = "${pkgs.aw-server-rust}/bin/aw-server-rust";
+      ExecStart = "${pkgs.aw-server-rust}/bin/aw-server";
       Restart = "on-failure";
     };
   };
@@ -93,10 +93,10 @@
   systemd.user.services.awatcher = {
     Unit = {
       Description = "awatcher activity tracker";
-      After = [ "graphical-session.target" "aw-server-rust.service" ];
+      After = [ "default.target" "aw-server-rust.service" ];
       Requires = [ "aw-server-rust.service" ];
     };
-    Install.WantedBy = [ "graphical-session.target" ];
+    Install.WantedBy = [ "default.target" ];
     Service = {
       ExecStart = "${pkgs.awatcher}/bin/awatcher";
       Restart = "on-failure";
