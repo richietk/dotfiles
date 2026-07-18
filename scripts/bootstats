@@ -37,8 +37,9 @@ for line in lines:
 
 analyzed = len(data["total"])
 print(f"boots: {analyzed} analyzed / {len(indices)} found in logs")
-print(f"  {'phase':<12} {'avg':>7}  {'min':>7}  {'max':>7}")
+print(f"  {'phase':<12} {'avg':>7}  {'min':>7}  {'max':>7}  {'current':>7}")
 for f in fields:
     vals = data[f]
     if vals:
-        print(f"  {f:<12} {sum(vals)/len(vals):>6.2f}s  {min(vals):>6.2f}s  {max(vals):>6.2f}s")
+        cur = f"{vals[-1]:>6.2f}s"
+        print(f"  {f:<12} {sum(vals)/len(vals):>6.2f}s  {min(vals):>6.2f}s  {max(vals):>6.2f}s  {cur:>7}")

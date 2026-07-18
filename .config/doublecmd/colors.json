@@ -5,7 +5,7 @@
       FilePanel : {
         CursorBorderColor : -2147483635,
         ForeColor : -2147483640,
-        BackColor : 16777215,
+        BackColor : -2147483643,
         BackColor2 : -2147483643,
         MarkColor : 255,
         CursorColor : -2147483635,
@@ -33,8 +33,7 @@
       SyncDirs : {
         LeftColor : 32768,
         RightColor : 16711680,
-        UnknownColor : 255,
-        SelectedColor : -2147483635
+        UnknownColor : 255
       },
       Viewer : {
         ImageBackColor1 : -2147483643,
@@ -72,12 +71,12 @@
       },
       ColumnSets : [
         {
-          Unique : "51F7F2FA-8AD1-4498-8779-8A487577E8C1",
+          Unique : "0655E520-31AB-4BB4-8B6A-C1BD50A9717C",
           Name : "Default",
           CursorBorderColor : -2147483635,
           Columns : [
             {
-              Unique : "16C4E309-8754-4A68-8064-FB546D157A24",
+              Unique : "E84AC87E-0D5C-4ACB-B63A-6FED4C3CC6D4",
               Title : "Name",
               TextColor : -2147483640,
               Background : -2147483643,
@@ -89,7 +88,7 @@
               InactiveMarkColor : 128
             },
             {
-              Unique : "089C2D1B-C8DB-414B-B5EE-A73FF31D7C7F",
+              Unique : "5422821E-666D-44C4-B18E-D8AABEE709C0",
               Title : "Ext",
               TextColor : -2147483640,
               Background : -2147483643,
@@ -101,7 +100,7 @@
               InactiveMarkColor : 128
             },
             {
-              Unique : "82657099-F5E5-4B2C-862E-5D7A173CE68F",
+              Unique : "6DDCCEEA-A4D2-41AB-B852-08D8652ED541",
               Title : "Size",
               TextColor : -2147483640,
               Background : -2147483643,
@@ -113,7 +112,7 @@
               InactiveMarkColor : 128
             },
             {
-              Unique : "A09B9DE8-26E7-481B-816A-E9A48C2E01FB",
+              Unique : "C008CBDB-024E-46A5-B99B-2E86FE6A859C",
               Title : "Date",
               TextColor : -2147483640,
               Background : -2147483643,
@@ -125,7 +124,7 @@
               InactiveMarkColor : 128
             },
             {
-              Unique : "CE52629F-D507-4FEC-B548-C3BF1765A206",
+              Unique : "297D9F60-3634-4717-8B82-77672E4104F1",
               Title : "Attr",
               TextColor : -2147483640,
               Background : -2147483643,
@@ -1704,8 +1703,8 @@
       FilePanel : {
         CursorBorderColor : -2147483635,
         ForeColor : -2147483640,
-        BackColor : 0,
-        BackColor2 : 0,
+        BackColor : -2147483643,
+        BackColor2 : -2147483643,
         MarkColor : 255,
         CursorColor : -2147483635,
         CursorText : -2147483634,
@@ -1732,8 +1731,7 @@
       SyncDirs : {
         LeftColor : 9097847,
         RightColor : 12622689,
-        UnknownColor : 6383296,
-        SelectedColor : -2147483635
+        UnknownColor : 6383296
       },
       Viewer : {
         ImageBackColor1 : -2147483643,
@@ -1771,12 +1769,12 @@
       },
       ColumnSets : [
         {
-          Unique : "51F7F2FA-8AD1-4498-8779-8A487577E8C1",
+          Unique : "0655E520-31AB-4BB4-8B6A-C1BD50A9717C",
           Name : "Default",
           CursorBorderColor : -2147483635,
           Columns : [
             {
-              Unique : "16C4E309-8754-4A68-8064-FB546D157A24",
+              Unique : "E84AC87E-0D5C-4ACB-B63A-6FED4C3CC6D4",
               Title : "Name",
               TextColor : -2147483640,
               Background : -2147483643,
@@ -1788,7 +1786,7 @@
               InactiveMarkColor : 128
             },
             {
-              Unique : "089C2D1B-C8DB-414B-B5EE-A73FF31D7C7F",
+              Unique : "5422821E-666D-44C4-B18E-D8AABEE709C0",
               Title : "Ext",
               TextColor : -2147483640,
               Background : -2147483643,
@@ -1800,7 +1798,7 @@
               InactiveMarkColor : 128
             },
             {
-              Unique : "82657099-F5E5-4B2C-862E-5D7A173CE68F",
+              Unique : "6DDCCEEA-A4D2-41AB-B852-08D8652ED541",
               Title : "Size",
               TextColor : -2147483640,
               Background : -2147483643,
@@ -1812,7 +1810,7 @@
               InactiveMarkColor : 128
             },
             {
-              Unique : "A09B9DE8-26E7-481B-816A-E9A48C2E01FB",
+              Unique : "C008CBDB-024E-46A5-B99B-2E86FE6A859C",
               Title : "Date",
               TextColor : -2147483640,
               Background : -2147483643,
@@ -1824,7 +1822,7 @@
               InactiveMarkColor : 128
             },
             {
-              Unique : "CE52629F-D507-4FEC-B548-C3BF1765A206",
+              Unique : "297D9F60-3634-4717-8B82-77672E4104F1",
               Title : "Attr",
               TextColor : -2147483640,
               Background : -2147483643,
@@ -1839,15 +1837,6 @@
         }
       ],
       Highlighters : [
-        {
-          Name : "Plain text",
-          Attributes : [
-            {
-              Name : "Default text",
-              Value : "$80000005|$80000008|$1FFFFFFF|0|1|0|0"
-            }
-          ]
-        },
         {
           Name : "C++",
           Attributes : [
@@ -2289,24 +2278,8 @@
               Value : "$1FFFFFFF|$1FFFFFFF|$1FFFFFFF|0|1|0|0"
             },
             {
-              Name : "Modifier",
-              Value : "$1FFFFFFF|$1FFFFFFF|$1FFFFFFF|0|1|1|0"
-            },
-            {
               Name : "Number",
               Value : "$1FFFFFFF|$00E8BCBC|$1FFFFFFF|0|1|0|0"
-            },
-            {
-              Name : "PasDoc-Keyword",
-              Value : "$1FFFFFFF|$1FFFFFFF|$1FFFFFFF|0|1|0|0"
-            },
-            {
-              Name : "PasDoc-Symbol",
-              Value : "$1FFFFFFF|$1FFFFFFF|$1FFFFFFF|0|1|0|0"
-            },
-            {
-              Name : "PasDoc-Unknown",
-              Value : "$1FFFFFFF|$1FFFFFFF|$1FFFFFFF|0|1|0|0"
             },
             {
               Name : "Procedure header name",
@@ -2637,10 +2610,6 @@
             {
               Name : "Symbol",
               Value : "$1FFFFFFF|$004D4DAA|$1FFFFFFF|0|1|0|0"
-            },
-            {
-              Name : "Unknown word",
-              Value : "$1FFFFFFF|$00808080|$1FFFFFFF|0|1|0|0"
             },
             {
               Name : "Variable",

@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 let
   touchpad-filter = pkgs.writers.writePython3Bin "touchpad-filter"
@@ -63,6 +63,11 @@ in
   services.displayManager.sddm = {
     enable = true;
     theme = "sugar-candy";
+    package = lib.mkForce (pkgs.kdePackages.sddm.overrideAttrs (old: {
+      postInstall = (old.postInstall or "") + ''
+        ln -sf $out/bin/sddm-greeter-qt6 $out/bin/sddm-greeter
+      '';
+    }));
     settings = {
       Theme = {
         CursorTheme = "GoogleDot-White";
