@@ -74,8 +74,20 @@
     rbw
     pinentry-qt
     just
-    haskellPackages.arbtt
+    awatcher
   ];
+
+  systemd.user.services.awatcher = {
+    Unit = {
+      Description = "awatcher activity tracker";
+      After = [ "graphical-session.target" ];
+    };
+    Install.WantedBy = [ "graphical-session.target" ];
+    Service = {
+      ExecStart = "${pkgs.awatcher}/bin/awatcher";
+      Restart = "on-failure";
+    };
+  };
 
   programs.zsh = {
     enable = true;
