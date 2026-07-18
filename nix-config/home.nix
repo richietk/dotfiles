@@ -74,6 +74,7 @@
     rbw
     pinentry-qt
     just
+    haskellPackages.arbtt
   ];
 
   programs.zsh = {

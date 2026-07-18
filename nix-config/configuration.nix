@@ -39,6 +39,7 @@ in
   };
  services.vnstat.enable = true;
  services.arbtt.enable = true;
+ systemd.user.services.arbtt.wantedBy = [ "default.target" ];
 
   # Locale / timezone
   time.timeZone = "Europe/Vienna";
