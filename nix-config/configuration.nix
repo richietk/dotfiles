@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, agenix, ... }:
 
 let
   touchpad-filter = pkgs.writers.writePython3Bin "touchpad-filter"
@@ -31,16 +31,22 @@ in
   networking.networkmanager.enable = true;
   networking.networkmanager.dns = "systemd-resolved";
   services.resolved.enable = true;
+  age.secrets."atvpn.conf"    = { file = ../secrets/atvpn.conf.age;    mode = "0600"; };
+  age.secrets."atvpn_pf.conf" = { file = ../secrets/atvpn_pf.conf.age; mode = "0600"; };
+  age.secrets."huvpn.conf"    = { file = ../secrets/huvpn.conf.age;     mode = "0600"; };
+  age.secrets."huvpn_pf.conf" = { file = ../secrets/huvpn_pf.conf.age;  mode = "0600"; };
+
   networking.wg-quick.interfaces = {
-    atvpn    = { autostart = true;  configFile = "/etc/wireguard/atvpn.conf"; };
-    atvpn_pf = { autostart = false; configFile = "/etc/wireguard/atvpn_pf.conf"; };
-    huvpn    = { autostart = false; configFile = "/etc/wireguard/huvpn.conf"; };
-    huvpn_pf = { autostart = false; configFile = "/etc/wireguard/huvpn_pf.conf"; };
+    atvpn    = { autostart = true;  configFile = config.age.secrets."atvpn.conf".path; };
+    atvpn_pf = { autostart = false; configFile = config.age.secrets."atvpn_pf.conf".path; };
+    huvpn    = { autostart = false; configFile = config.age.secrets."huvpn.conf".path; };
+    huvpn_pf = { autostart = false; configFile = config.age.secrets."huvpn_pf.conf".path; };
   };
  services.vnstat.enable = true;
  services.arbtt.enable = true;
  systemd.user.services.arbtt.wantedBy = [ "default.target" ];
 
+services.openssh.enable=true;
   # Locale / timezone
   time.timeZone = "Europe/Vienna";
   i18n.defaultLocale = "en_US.UTF-8";
@@ -133,6 +139,7 @@ in
 
   # System packages
   environment.systemPackages = with pkgs; [
+    agenix.packages.x86_64-linux.default
     wireguard-tools
     ffmpeg
     touchpad-filter
