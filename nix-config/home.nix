@@ -76,6 +76,7 @@
     just
     awatcher
     aw-server-rust
+    neovim
   ];
 
   systemd.user.services.aw-server-rust = {
@@ -285,6 +286,28 @@
 
   home.file.".config/doublecmd/multiarc.ini".source =
     config.lib.file.mkOutOfStoreSymlink "/home/richard/dotfiles/.config/doublecmd/multiarc.ini";
+
+  programs.firefox = {
+    enable = true;
+    configPath = "${config.xdg.configHome}/mozilla/firefox";
+    profiles.default = {
+      settings = {
+        "browser.startup.page"                                           = 3;
+        "browser.newtabpage.activity-stream.feeds.topsites"             = false;
+        "browser.newtabpage.activity-stream.newtabWallpapers.wallpaper" = "light-panda";
+        "accessibility.typeaheadfind.flashBar"                          = 0;
+        "toolkit.legacyUserProfileCustomizations.stylesheets"           = true;
+      };
+      extensions.packages = with pkgs.nur.repos.rycee.firefox-addons; [
+        ublock-origin
+        bitwarden
+        absolute-enable-right-click
+        # vimium was disabled in your old profile — uncomment to add it back:
+        # vimium
+        # linkclump is not in NUR — install it manually from addons.mozilla.org
+      ];
+    };
+  };
 
   # DeadBeeF
   home.file.".config/deadbeef/config".source =

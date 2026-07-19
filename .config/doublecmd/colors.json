@@ -71,12 +71,12 @@
       },
       ColumnSets : [
         {
-          Unique : "0655E520-31AB-4BB4-8B6A-C1BD50A9717C",
+          Unique : "A3268AB7-48E0-4716-9A54-E50BE4A95E15",
           Name : "Default",
           CursorBorderColor : -2147483635,
           Columns : [
             {
-              Unique : "E84AC87E-0D5C-4ACB-B63A-6FED4C3CC6D4",
+              Unique : "6BA46A35-1A5E-4C80-89C3-B842CE1A64D3",
               Title : "Name",
               TextColor : -2147483640,
               Background : -2147483643,
@@ -88,7 +88,7 @@
               InactiveMarkColor : 128
             },
             {
-              Unique : "5422821E-666D-44C4-B18E-D8AABEE709C0",
+              Unique : "CCF90A2D-3BDC-4FEF-B1C9-62144BAD2003",
               Title : "Ext",
               TextColor : -2147483640,
               Background : -2147483643,
@@ -100,7 +100,7 @@
               InactiveMarkColor : 128
             },
             {
-              Unique : "6DDCCEEA-A4D2-41AB-B852-08D8652ED541",
+              Unique : "FB580E03-0B01-479F-A662-26E33E5F4F56",
               Title : "Size",
               TextColor : -2147483640,
               Background : -2147483643,
@@ -112,7 +112,7 @@
               InactiveMarkColor : 128
             },
             {
-              Unique : "C008CBDB-024E-46A5-B99B-2E86FE6A859C",
+              Unique : "3F6BFDA6-12CF-475D-96EA-EC0A64752A7B",
               Title : "Date",
               TextColor : -2147483640,
               Background : -2147483643,
@@ -124,7 +124,7 @@
               InactiveMarkColor : 128
             },
             {
-              Unique : "297D9F60-3634-4717-8B82-77672E4104F1",
+              Unique : "E9E0A7C8-19C3-4AB4-BFA7-903791B58084",
               Title : "Attr",
               TextColor : -2147483640,
               Background : -2147483643,
@@ -1769,12 +1769,12 @@
       },
       ColumnSets : [
         {
-          Unique : "0655E520-31AB-4BB4-8B6A-C1BD50A9717C",
+          Unique : "A3268AB7-48E0-4716-9A54-E50BE4A95E15",
           Name : "Default",
           CursorBorderColor : -2147483635,
           Columns : [
             {
-              Unique : "E84AC87E-0D5C-4ACB-B63A-6FED4C3CC6D4",
+              Unique : "6BA46A35-1A5E-4C80-89C3-B842CE1A64D3",
               Title : "Name",
               TextColor : -2147483640,
               Background : -2147483643,
@@ -1786,7 +1786,7 @@
               InactiveMarkColor : 128
             },
             {
-              Unique : "5422821E-666D-44C4-B18E-D8AABEE709C0",
+              Unique : "CCF90A2D-3BDC-4FEF-B1C9-62144BAD2003",
               Title : "Ext",
               TextColor : -2147483640,
               Background : -2147483643,
@@ -1798,7 +1798,7 @@
               InactiveMarkColor : 128
             },
             {
-              Unique : "6DDCCEEA-A4D2-41AB-B852-08D8652ED541",
+              Unique : "FB580E03-0B01-479F-A662-26E33E5F4F56",
               Title : "Size",
               TextColor : -2147483640,
               Background : -2147483643,
@@ -1810,7 +1810,7 @@
               InactiveMarkColor : 128
             },
             {
-              Unique : "C008CBDB-024E-46A5-B99B-2E86FE6A859C",
+              Unique : "3F6BFDA6-12CF-475D-96EA-EC0A64752A7B",
               Title : "Date",
               TextColor : -2147483640,
               Background : -2147483643,
@@ -1822,7 +1822,7 @@
               InactiveMarkColor : 128
             },
             {
-              Unique : "297D9F60-3634-4717-8B82-77672E4104F1",
+              Unique : "E9E0A7C8-19C3-4AB4-BFA7-903791B58084",
               Title : "Attr",
               TextColor : -2147483640,
               Background : -2147483643,

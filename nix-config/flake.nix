@@ -8,8 +8,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     agenix.url="github:ryantm/agenix";
+    nur.url = "github:nix-community/NUR";
   };
-  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, agenix, ... }:
+  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, agenix, nur, ... }:
   let
     system = "x86_64-linux";
     pkgs-unstable = import nixpkgs-unstable {
@@ -30,6 +31,7 @@
           home-manager.users.richard = import ./home.nix;
           home-manager.extraSpecialArgs = { inherit pkgs-unstable; };
           nixpkgs.config.allowUnfree = true;
+          nixpkgs.overlays = [ nur.overlays.default ];
         }
       ];
     };
