@@ -290,6 +290,23 @@
   programs.firefox = {
     enable = true;
     configPath = "${config.xdg.configHome}/mozilla/firefox";
+    policies = {
+      DisableTelemetry = true;
+      DisableFirefoxStudies = true;
+      DisablePocket = true;
+      OverrideFirstRunPage = "";
+      OverridePostUpdatePage = "";
+      PasswordManagerEnabled = false;
+      DisableFormHistory = true;
+      AutofillCreditCardEnabled = false;
+      AutofillAddressEnabled = false;
+      EnableTrackingProtection = {
+        Value = true;
+        Locked = true;
+        Cryptomining = true;
+        Fingerprinting = true;
+      };
+    };
     profiles.default = {
       settings = {
         "browser.startup.page"                                           = 3;

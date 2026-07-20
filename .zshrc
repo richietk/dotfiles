@@ -82,6 +82,8 @@ unmntdisk() {
     udisksctl unmount -b "$dev"
 }
 
+
+alias wifirec="nmcli radio wifi off && nmcli radio wifi on"
 # --- zoxide ---
 eval "$(zoxide init zsh)"
 
@@ -653,6 +655,14 @@ vpnon() {
             return 1
             ;;
     esac
+
+    local active_vpn
+    for active_vpn in atvpn atvpn_pf huvpn huvpn_pf; do
+        if systemctl is-active --quiet wg-quick-$active_vpn 2>/dev/null; then
+            echo "Already connected to $active_vpn. Run vpnoff first." >&2
+            return 1
+        fi
+    done
 
     echo "Connecting to $conf..."
     sudo systemctl start wg-quick-$conf || { echo "Failed to connect to $conf." >&2; return 1; }

@@ -43,8 +43,6 @@ in
     huvpn_pf = { autostart = false; configFile = config.age.secrets."huvpn_pf.conf".path; };
   };
  services.vnstat.enable = true;
- services.arbtt.enable = true;
- systemd.user.services.arbtt.wantedBy = [ "default.target" ];
 
 services.openssh.enable=true;
   # Locale / timezone
@@ -69,6 +67,7 @@ services.openssh.enable=true;
   services.displayManager.sddm = {
     enable = true;
     theme = "sugar-candy";
+    extraPackages = [ pkgs.kdePackages.qt5compat ];
     package = lib.mkForce (pkgs.kdePackages.sddm.override {
       sddm-unwrapped = pkgs.kdePackages.sddm.unwrapped.overrideAttrs (old: {
         postInstall = (old.postInstall or "") + ''
@@ -111,7 +110,12 @@ services.openssh.enable=true;
 
   # Power management
   services.power-profiles-daemon.enable = false;
-  services.tlp.enable = true;
+  zramSwap.enable = true;
+
+  services.tlp = {
+    enable = true;
+    settings.DISK_LAPTOPMODE_ENABLE = 0;
+  };
   services.asusd.enable = true;
   systemd.tmpfiles.rules = [ "d /etc/asusd 0755 root root -" ];
 
@@ -170,13 +174,15 @@ services.openssh.enable=true;
     description = "Touchpad BTN_LEFT filter";
     wantedBy = [ "graphical-session.target" ];
     after = [ "graphical-session.target" ];
+    unitConfig = {
+      StartLimitIntervalSec = "120s";
+      StartLimitBurst = 5;
+    };
     serviceConfig = {
       Type = "simple";
       ExecStart = "${touchpad-filter}/bin/touchpad-filter";
       Restart = "on-failure";
       RestartSec = "3s";
-      StartLimitIntervalSec = "120s";
-      StartLimitBurst = 5;
       StandardOutput = "journal";
       StandardError = "journal";
       SyslogIdentifier = "touchpad-filter";
