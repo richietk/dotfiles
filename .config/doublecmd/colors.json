@@ -1838,6 +1838,15 @@
       ],
       Highlighters : [
         {
+          Name : "Plain text",
+          Attributes : [
+            {
+              Name : "Default text",
+              Value : "$80000005|$80000008|$1FFFFFFF|0|1|0|0"
+            }
+          ]
+        },
+        {
           Name : "C++",
           Attributes : [
             {
@@ -2278,8 +2287,24 @@
               Value : "$1FFFFFFF|$1FFFFFFF|$1FFFFFFF|0|1|0|0"
             },
             {
+              Name : "Modifier",
+              Value : "$1FFFFFFF|$1FFFFFFF|$1FFFFFFF|0|1|1|0"
+            },
+            {
               Name : "Number",
               Value : "$1FFFFFFF|$00E8BCBC|$1FFFFFFF|0|1|0|0"
+            },
+            {
+              Name : "PasDoc-Keyword",
+              Value : "$1FFFFFFF|$1FFFFFFF|$1FFFFFFF|0|1|0|0"
+            },
+            {
+              Name : "PasDoc-Symbol",
+              Value : "$1FFFFFFF|$1FFFFFFF|$1FFFFFFF|0|1|0|0"
+            },
+            {
+              Name : "PasDoc-Unknown",
+              Value : "$1FFFFFFF|$1FFFFFFF|$1FFFFFFF|0|1|0|0"
             },
             {
               Name : "Procedure header name",
@@ -2610,6 +2635,10 @@
             {
               Name : "Symbol",
               Value : "$1FFFFFFF|$004D4DAA|$1FFFFFFF|0|1|0|0"
+            },
+            {
+              Name : "Unknown word",
+              Value : "$1FFFFFFF|$00808080|$1FFFFFFF|0|1|0|0"
             },
             {
               Name : "Variable",

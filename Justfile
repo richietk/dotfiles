@@ -3,6 +3,11 @@ set shell := ["zsh", "-euo", "pipefail", "-c"]
 SSD_MOUNT := "/run/media/richard/7ABF-7932"
 RESTIC_REPO := SSD_MOUNT + "/backup/restic_repo"
 
+# Update flake inputs and rebuild NixOS
+update:
+    nix flake update --flake ~/dotfiles/nix-config
+    sudo nixos-rebuild switch --flake ~/dotfiles/nix-config#nixos
+
 # Rebuild NixOS and push dotfiles on success
 rebuild:
     sudo nixos-rebuild switch --flake ~/dotfiles/nix-config#nixos

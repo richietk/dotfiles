@@ -159,12 +159,12 @@
   <MainWindow>
     <Position Save="True">
       <Left>80</Left>
-      <Top>48</Top>
-      <Width>955</Width>
-      <Height>1000</Height>
+      <Top>0</Top>
+      <Width>715</Width>
+      <Height>395</Height>
       <PixelsPerInch>96</PixelsPerInch>
       <Maximized>True</Maximized>
-      <Splitter>50</Splitter>
+      <Splitter>71,3530655391121</Splitter>
     </Position>
   </MainWindow>
   <Language>
@@ -475,7 +475,7 @@
       <MulRenLogFilename>%DC_CONFIG_PATH%/multirename.log</MulRenLogFilename>
       <MultRenDailyIndividualDirLog>True</MultRenDailyIndividualDirLog>
       <MulRenFilenameWithFullPathInLog>False</MulRenFilenameWithFullPathInLog>
-      <MulRenPathRangeSeparator> - </MulRenPathRangeSeparator>
+      <MulRenPathRangeSeparator>- </MulRenPathRangeSeparator>
     </MultiRename>
   </FileOperations>
   <Tabs>
@@ -730,7 +730,7 @@
           <Title>Name</Title>
           <Unique>6BA46A35-1A5E-4C80-89C3-B842CE1A64D3</Unique>
           <FuncString>[DC().GETFILENAMENOEXT{}]</FuncString>
-          <Width>250</Width>
+          <Width>437</Width>
           <Align>0</Align>
           <Font>
             <Name>default</Name>

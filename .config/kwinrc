@@ -30,6 +30,14 @@ LayoutName=compact
 padding=4
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
 
+[Tiling][0922c03e-9326-4f3a-9006-7df89e512e8e][9f99ffe7-ce93-427b-8223-b41e176fc2a5]
+padding=4
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
+
+[Tiling][0922c03e-9326-4f3a-9006-7df89e512e8e][ae3d7f09-5456-4e62-832c-340939dfc11a]
+padding=4
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
+
 [Tiling][0922c03e-9326-4f3a-9006-7df89e512e8e][b13982d9-6f1a-4edb-9d63-d03f36a8a894]
 padding=4
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
@@ -51,7 +59,7 @@ tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"wi
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
 
 [Xwayland]
-Scale=1
+Scale=1.6
 
 [org.kde.kdecoration2]
 library=org.kde.breeze

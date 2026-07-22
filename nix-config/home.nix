@@ -47,6 +47,7 @@
     strace
     testdisk
     tesseract
+    trash-cli
     fdupes
     graphviz
     imagemagick
@@ -74,35 +75,11 @@
     rbw
     pinentry-qt
     just
-    awatcher
-    aw-server-rust
     neovim
+    plocate
+    fd
   ];
 
-  systemd.user.services.aw-server-rust = {
-    Unit = {
-      Description = "ActivityWatch server (Rust)";
-      After = [ "default.target" ];
-    };
-    Install.WantedBy = [ "default.target" ];
-    Service = {
-      ExecStart = "${pkgs.aw-server-rust}/bin/aw-server";
-      Restart = "on-failure";
-    };
-  };
-
-  systemd.user.services.awatcher = {
-    Unit = {
-      Description = "awatcher activity tracker";
-      After = [ "default.target" "aw-server-rust.service" ];
-      Requires = [ "aw-server-rust.service" ];
-    };
-    Install.WantedBy = [ "default.target" ];
-    Service = {
-      ExecStart = "${pkgs.awatcher}/bin/awatcher";
-      Restart = "on-failure";
-    };
-  };
 
   programs.zsh = {
     enable = true;
@@ -140,6 +117,10 @@
       "video/ogg"          = "mpv.desktop";
       "video/x-flv"        = "mpv.desktop";
       "video/3gpp"         = "mpv.desktop";
+      "audio/x-opus+ogg"   = "mpv.desktop";
+    };
+    associations.removed = {
+      "audio/x-opus+ogg" = "org.kde.elisa.desktop";
     };
   };
   xdg.configFile."mimeapps.list".force = true;
@@ -319,8 +300,7 @@
         ublock-origin
         bitwarden
         absolute-enable-right-click
-        # vimium was disabled in your old profile — uncomment to add it back:
-        # vimium
+        vimium
         # linkclump is not in NUR — install it manually from addons.mozilla.org
       ];
     };

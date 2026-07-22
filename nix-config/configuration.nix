@@ -138,7 +138,7 @@ services.openssh.enable=true;
   users.users."richard" = {
     isNormalUser = true;
     description = "richard";
-    extraGroups = [ "networkmanager" "wheel" "input" ];
+    extraGroups = [ "networkmanager" "wheel" "input" "video" ];
     shell = pkgs.zsh;
     packages = with pkgs; [ kdePackages.kate ];
   };
@@ -148,6 +148,7 @@ services.openssh.enable=true;
     agenix.packages.x86_64-linux.default
     wireguard-tools
     ffmpeg
+    brightnessctl
     touchpad-filter
     reset-touchpad
     sddm-sugar-candy
