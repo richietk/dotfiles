@@ -76,7 +76,6 @@
     pinentry-qt
     just
     neovim
-    plocate
     fd
   ];
 

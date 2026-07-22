@@ -42,8 +42,7 @@ in
     huvpn    = { autostart = false; configFile = config.age.secrets."huvpn.conf".path; };
     huvpn_pf = { autostart = false; configFile = config.age.secrets."huvpn_pf.conf".path; };
   };
- services.vnstat.enable = true;
-
+ 
 services.openssh.enable=true;
   # Locale / timezone
   time.timeZone = "Europe/Vienna";
@@ -240,6 +239,12 @@ services.openssh.enable=true;
         done
       '';
     };
+  };
+
+  services.locate = {
+    enable = true;
+    locate = pkgs.plocate;
+    interval = "daily";
   };
 
   system.stateVersion = "26.05";
