@@ -137,7 +137,7 @@ services.openssh.enable=true;
   users.users."richard" = {
     isNormalUser = true;
     description = "richard";
-    extraGroups = [ "networkmanager" "wheel" "input" "video" ];
+    extraGroups = [ "networkmanager" "wheel" "input" "video" "plocate" ];
     shell = pkgs.zsh;
     packages = with pkgs; [ kdePackages.kate ];
   };
