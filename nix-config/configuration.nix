@@ -132,12 +132,13 @@ services.openssh.enable=true;
   # Shell
   programs.firefox.enable = true;
   programs.zsh.enable = true;
+  programs.wireshark.enable = true;
 
   # Users
   users.users."richard" = {
     isNormalUser = true;
     description = "richard";
-    extraGroups = [ "networkmanager" "wheel" "input" "video" "plocate" ];
+    extraGroups = [ "networkmanager" "wheel" "input" "video" "plocate" "wireshark" ];
     shell = pkgs.zsh;
     packages = with pkgs; [ kdePackages.kate ];
   };

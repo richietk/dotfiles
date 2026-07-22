@@ -6,14 +6,14 @@ IFACE="${1:-$(ip route show default 2>/dev/null | awk '/default/ {print $5; exit
 REFRESH="${2:-3}"
 
 if ! command -v tshark &>/dev/null; then
-    echo "tshark not found. Install: sudo pacman -S wireshark-cli" >&2; exit 1
+    echo "tshark not found. Add to home.nix: programs.wireshark.enable = true" >&2; exit 1
 fi
 if [[ -z "$IFACE" ]]; then
     echo "Could not detect interface. Available:" >&2
     tshark -D 2>/dev/null | awk '{print "  " $0}' >&2; exit 1
 fi
 if [[ $EUID -ne 0 ]] && ! id -nG | grep -qw wireshark; then
-    echo "Need root or wireshark group: sudo usermod -aG wireshark $USER" >&2; exit 1
+    echo "Need root or wireshark group: add \"wireshark\" to users.users.$USER.extraGroups in configuration.nix" >&2; exit 1
 fi
 
 # Local IPv4 + IPv6 addresses on this interface — used to tell OUT (we're the
