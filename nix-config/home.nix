@@ -5,6 +5,11 @@ let
     runtimeInputs = with pkgs; [ inotify-tools sqlite ];
     text = builtins.readFile ../scripts/firefox-history-watcher;
   };
+  pktlog = pkgs.writeShellApplication {
+    name = "pktlog";
+    runtimeInputs = with pkgs; [ tshark ];
+    text = builtins.readFile ../scripts/pktlog;
+  };
 in
 {
   home.username = "richard";
@@ -315,6 +320,38 @@ in
         vimium
         # linkclump is not in NUR — install it manually from addons.mozilla.org
       ];
+    };
+  };
+
+  systemd.user.services.pktlog-atvpn = {
+    Unit = {
+      Description = "Continuous tshark packet log on atvpn (VPN tunnel)";
+      After = [ "default.target" ];
+    };
+    Service = {
+      ExecStart = "${pktlog}/bin/pktlog atvpn";
+      StandardOutput = "append:/home/richard/capture_atvpn.txt";
+      Restart = "on-failure";
+      RestartSec = "30s";
+    };
+    Install = {
+      WantedBy = [ "default.target" ];
+    };
+  };
+
+  systemd.user.services.pktlog-wlp1s0 = {
+    Unit = {
+      Description = "Continuous tshark packet log on wlp1s0 (WiFi, leak detection)";
+      After = [ "default.target" ];
+    };
+    Service = {
+      ExecStart = "${pktlog}/bin/pktlog wlp1s0";
+      StandardOutput = "append:/home/richard/capture_wlp1s0.txt";
+      Restart = "on-failure";
+      RestartSec = "10s";
+    };
+    Install = {
+      WantedBy = [ "default.target" ];
     };
   };
 
