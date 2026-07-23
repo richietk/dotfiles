@@ -248,5 +248,13 @@ services.openssh.enable=true;
     interval = "daily";
   };
 
+  # Cron
+  services.cron = {
+    enable = true;
+    systemCronJobs = [
+      "* * * * * richard /home/richard/dotfiles/scripts/launch-terminal-test.sh"
+    ];
+  };
+
   system.stateVersion = "26.05";
 }

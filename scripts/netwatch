@@ -51,7 +51,9 @@ IPFILE=$(mktemp)
 LBLFILE=$(mktemp)
 PORTFILE=$(mktemp)
 
-cleanup() { kill "$BGPID" "$RESOLVER_PID" 2>/dev/null; rm -f "$IPFILE" "$LBLFILE" "$PORTFILE"; exit; }
+printf '\033[?1049h'  # enter alternate screen buffer
+
+cleanup() { kill "$BGPID" "$RESOLVER_PID" 2>/dev/null; rm -f "$IPFILE" "$LBLFILE" "$PORTFILE"; printf '\033[?1049l'; exit; }
 trap cleanup INT TERM EXIT
 
 # === Capture: classify each packet as IN/OUT, log remote IP, cache any named label ===
@@ -136,7 +138,6 @@ BGPID=$!
 RESOLVER_PID=$!
 
 divider=$(printf '─%.0s' {1..72})
-printf '\033[1mnetwatch  %s  —  refreshing every %ss  (Ctrl+C to stop)\033[0m\n\n' "$IFACE" "$REFRESH"
 
 print_table() {
     local dir="$1" title="$2"

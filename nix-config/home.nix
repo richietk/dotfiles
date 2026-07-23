@@ -1,4 +1,11 @@
 { config, pkgs, pkgs-unstable, ... }:
+let
+  firefox-history-watcher = pkgs.writeShellApplication {
+    name = "firefox-history-watcher";
+    runtimeInputs = with pkgs; [ inotify-tools sqlite ];
+    text = builtins.readFile ../scripts/firefox-history-watcher;
+  };
+in
 {
   home.username = "richard";
   home.homeDirectory = "/home/richard";
@@ -82,6 +89,7 @@
       runtimeInputs = with pkgs; [ tshark iproute2 gawk util-linux ];
       text = builtins.readFile ../scripts/netwatch;
     })
+    firefox-history-watcher
   ];
 
 
@@ -307,6 +315,21 @@
         vimium
         # linkclump is not in NUR — install it manually from addons.mozilla.org
       ];
+    };
+  };
+
+  systemd.user.services.firefox-history-watcher = {
+    Unit = {
+      Description = "Append Firefox history to a permanent log";
+      After = [ "graphical-session.target" ];
+    };
+    Service = {
+      ExecStart = "${firefox-history-watcher}/bin/firefox-history-watcher";
+      Restart = "on-failure";
+      RestartSec = "5s";
+    };
+    Install = {
+      WantedBy = [ "graphical-session.target" ];
     };
   };
 
