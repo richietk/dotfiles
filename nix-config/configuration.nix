@@ -252,7 +252,7 @@ services.openssh.enable=true;
   services.cron = {
     enable = true;
     systemCronJobs = [
-      "* * * * * richard /home/richard/dotfiles/scripts/launch-terminal-test.sh"
+      
     ];
   };
 
