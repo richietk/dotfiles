@@ -38,7 +38,7 @@ query_new() {
 # Catch up on anything missed while the service was down
 query_new
 
-inotifywait -m -q -e close_write,moved_to \
+inotifywait -m -q -e modify,moved_to \
     --include 'places\.sqlite' \
     "$(dirname "$DB")" | while read -r _dir _event _file; do
     sleep 1
