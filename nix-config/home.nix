@@ -323,6 +323,10 @@ in
     };
   };
 
+  services.syncthing = {
+    enable = true;
+  };
+
   systemd.user.services.pktlog-atvpn = {
     Unit = {
       Description = "Continuous tshark packet log on atvpn (VPN tunnel)";
