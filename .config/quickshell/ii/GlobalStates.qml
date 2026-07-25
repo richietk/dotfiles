@@ -10,12 +10,8 @@ pragma ComponentBehavior: Bound
 Singleton {
     id: root
     property bool barOpen: true
-    property bool crosshairOpen: false
-    property bool sidebarRightOpen: false
-    property bool mediaControlsOpen: false
     property bool osdBrightnessOpen: false
     property bool osdVolumeOpen: false
-    property bool overlayOpen: false
     property bool overviewOpen: false
     property bool regionSelectorOpen: false
     property bool searchOpen: false
@@ -27,11 +23,18 @@ Singleton {
     property bool superReleaseMightTrigger: true
     property bool workspaceShowNumbers: false
 
-    onSidebarRightOpenChanged: {
-        if (GlobalStates.sidebarRightOpen) {
-            Notifications.timeoutAll();
-            Notifications.markAllRead();
-        }
+    property bool showBluetoothDialog: false
+    property bool showWifiDialog: false
+    property bool showAudioOutputDialog: false
+    property bool showAudioInputDialog: false
+
+    readonly property bool anyDialogOpen: showBluetoothDialog || showWifiDialog || showAudioOutputDialog || showAudioInputDialog
+
+    function closeAllDialogs() {
+        showBluetoothDialog = false
+        showWifiDialog = false
+        showAudioOutputDialog = false
+        showAudioInputDialog = false
     }
 
     GlobalShortcut {

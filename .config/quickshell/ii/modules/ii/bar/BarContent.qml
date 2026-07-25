@@ -1,8 +1,8 @@
-import qs.modules.ii.bar.weather
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.UPower
+import Quickshell.Bluetooth
 import qs
 import qs.services
 import qs.modules.common
@@ -94,13 +94,14 @@ Item { // Bar content region
             top: parent.top
             bottom: parent.bottom
             horizontalCenter: parent.horizontalCenter
+            horizontalCenterOffset: -(root.centerSideModuleWidth / 2)
         }
         spacing: 4
 
         BarGroup {
             id: leftCenterGroup
             anchors.verticalCenter: parent.verticalCenter
-            implicitWidth: root.centerSideModuleWidth
+            implicitWidth: root.centerSideModuleWidth / 2
 
             Resources {
                 alwaysShowAllResources: root.useShortenedForm === 2
@@ -141,12 +142,8 @@ Item { // Bar content region
         MouseArea {
             id: rightCenterGroup
             anchors.verticalCenter: parent.verticalCenter
-            implicitWidth: root.centerSideModuleWidth
+            implicitWidth: root.centerSideModuleWidth / 1.5
             implicitHeight: rightCenterGroupContent.implicitHeight
-
-            onPressed: {
-                GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen;
-            }
 
             BarGroup {
                 id: rightCenterGroupContent
@@ -183,16 +180,10 @@ Item { // Bar content region
         implicitWidth: rightSectionRowLayout.implicitWidth
         implicitHeight: Appearance.sizes.baseBarHeight
 
-        onScrollDown: Audio.decrementVolume();
-        onScrollUp: Audio.incrementVolume();
-        onMovedAway: GlobalStates.osdVolumeOpen = false;
-        onPressed: event => {
-            if (event.button === Qt.LeftButton) {
-                GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen;
-            }
-        }
+        onScrollDown: Audio.decrementVolume()
+        onScrollUp: Audio.incrementVolume()
+        onMovedAway: GlobalStates.osdVolumeOpen = false
 
-        // Visual content
         ScrollHint {
             reveal: barRightSideMouseArea.hovered
             icon: "volume_up"
@@ -208,97 +199,73 @@ Item { // Bar content region
             spacing: 5
             layoutDirection: Qt.RightToLeft
 
-            RippleButton { // Right sidebar button
-                id: rightSidebarButton
-
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+            // Session
+            BarIconButton {
+                buttonIcon: "power_settings_new"
                 Layout.rightMargin: Appearance.rounding.screenRounding
-                Layout.fillWidth: false
+                onClicked: GlobalStates.sessionOpen = true
+            }
 
-                implicitWidth: indicatorsRowLayout.implicitWidth + 10 * 2
-                implicitHeight: indicatorsRowLayout.implicitHeight + 5 * 2
+            VerticalBarSeparator { Layout.leftMargin: 3; Layout.rightMargin: 3 }
 
-                buttonRadius: Appearance.rounding.full
-                colBackground: barRightSideMouseArea.hovered ? Appearance.colors.colLayer1Hover : ColorUtils.transparentize(Appearance.colors.colLayer1Hover, 1)
-                colBackgroundHover: Appearance.colors.colLayer1Hover
-                colRipple: Appearance.colors.colLayer1Active
-                colBackgroundToggled: Appearance.colors.colSecondaryContainer
-                colBackgroundToggledHover: Appearance.colors.colSecondaryContainerHover
-                colRippleToggled: Appearance.colors.colSecondaryContainerActive
-                toggled: GlobalStates.sidebarRightOpen
-                property color colText: toggled ? Appearance.m3colors.m3onSecondaryContainer : Appearance.colors.colOnLayer0
+            // Keep awake
+            BarIconButton {
+                buttonIcon: "coffee"
+                toggled: Idle.inhibit
+                onClicked: Idle.toggleInhibit()
+            }
 
-                Behavior on colText {
-                    animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
-                }
+            // Notifications
+            BarIconButton {
+                buttonIcon: Notifications.silent ? "notifications_paused" : "notifications_active"
+                toggled: !Notifications.silent
+                onClicked: Notifications.silent = !Notifications.silent
+            }
 
-                onPressed: {
-                    GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen;
-                }
+            VerticalBarSeparator { Layout.leftMargin: 3; Layout.rightMargin: 3 }
 
-                RowLayout {
-                    id: indicatorsRowLayout
-                    anchors.centerIn: parent
-                    property real realSpacing: 15
-                    spacing: 0
+            // Mic
+            BarIconButton {
+                buttonIcon: Audio.source?.audio?.muted ? "mic_off" : "mic"
+                toggled: !(Audio.source?.audio?.muted ?? false)
+                onClicked: Audio.toggleMicMute()
+                altAction: () => GlobalStates.showAudioInputDialog = true
+            }
 
-                    Revealer {
-                        reveal: Audio.sink?.audio?.muted ?? false
-                        Layout.fillHeight: true
-                        Layout.rightMargin: reveal ? indicatorsRowLayout.realSpacing : 0
-                        Behavior on Layout.rightMargin {
-                            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
-                        }
-                        MaterialSymbol {
-                            text: "volume_off"
-                            iconSize: Appearance.font.pixelSize.larger
-                            color: rightSidebarButton.colText
-                        }
-                    }
-                    Revealer {
-                        reveal: Audio.source?.audio?.muted ?? false
-                        Layout.fillHeight: true
-                        Layout.rightMargin: reveal ? indicatorsRowLayout.realSpacing : 0
-                        Behavior on Layout.rightMargin {
-                            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
-                        }
-                        MaterialSymbol {
-                            text: "mic_off"
-                            iconSize: Appearance.font.pixelSize.larger
-                            color: rightSidebarButton.colText
-                        }
-                    }
-                    HyprlandXkbIndicator {
-                        Layout.alignment: Qt.AlignVCenter
-                        Layout.rightMargin: indicatorsRowLayout.realSpacing
-                        color: rightSidebarButton.colText
-                    }
-                    Revealer {
-                        reveal: Notifications.silent || Notifications.unread > 0
-                        Layout.fillHeight: true
-                        Layout.rightMargin: reveal ? indicatorsRowLayout.realSpacing : 0
-                        implicitHeight: reveal ? notificationUnreadCount.implicitHeight : 0
-                        implicitWidth: reveal ? notificationUnreadCount.implicitWidth : 0
-                        Behavior on Layout.rightMargin {
-                            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
-                        }
-                        NotificationUnreadCount {
-                            id: notificationUnreadCount
-                        }
-                    }
-                    MaterialSymbol {
-                        text: Network.materialSymbol
-                        iconSize: Appearance.font.pixelSize.larger
-                        color: rightSidebarButton.colText
-                    }
-                    MaterialSymbol {
-                        Layout.leftMargin: indicatorsRowLayout.realSpacing
-                        visible: BluetoothStatus.available
-                        text: BluetoothStatus.connected ? "bluetooth_connected" : BluetoothStatus.enabled ? "bluetooth" : "bluetooth_disabled"
-                        iconSize: Appearance.font.pixelSize.larger
-                        color: rightSidebarButton.colText
-                    }
-                }
+            // Volume
+            BarIconButton {
+                buttonIcon: Audio.sink?.audio?.muted ? "volume_off" : "volume_up"
+                toggled: !(Audio.sink?.audio?.muted ?? false)
+                onClicked: Audio.toggleMute()
+                altAction: () => GlobalStates.showAudioOutputDialog = true
+            }
+
+            VerticalBarSeparator { Layout.leftMargin: 3; Layout.rightMargin: 3 }
+
+            // Bluetooth
+            BarIconButton {
+                visible: BluetoothStatus.available
+                buttonIcon: BluetoothStatus.connected ? "bluetooth_connected" : BluetoothStatus.enabled ? "bluetooth" : "bluetooth_disabled"
+                toggled: BluetoothStatus.enabled
+                onClicked: Bluetooth.defaultAdapter.enabled = !Bluetooth.defaultAdapter?.enabled
+                altAction: () => GlobalStates.showBluetoothDialog = true
+            }
+
+            // Network
+            BarIconButton {
+                buttonIcon: Network.materialSymbol
+                toggled: Network.wifiStatus !== "disabled"
+                onClicked: Network.toggleWifi()
+                altAction: () => GlobalStates.showWifiDialog = true
+            }
+
+            // Notification count
+            Revealer {
+                reveal: Notifications.silent || Notifications.unread > 0
+                Layout.fillHeight: true
+                Layout.leftMargin: 4
+                Layout.rightMargin: 2
+                NotificationUnreadCount {}
             }
 
             SysTray {
@@ -312,15 +279,31 @@ Item { // Bar content region
                 Layout.fillWidth: true
                 Layout.fillHeight: true
             }
+        }
+    }
 
-            // Weather
-            Loader {
-                Layout.leftMargin: 4
-                active: Config.options.bar.weather.enable
+    component BarIconButton: RippleButton {
+        id: barBtn
+        required property string buttonIcon
 
-                sourceComponent: BarGroup {
-                    WeatherBar {}
-                }
+        implicitWidth: 36
+        implicitHeight: 30
+        buttonRadius: Appearance.rounding.small
+        colBackground: ColorUtils.transparentize(Appearance.colors.colLayer1Hover, 1)
+        colBackgroundHover: Appearance.colors.colLayer1Hover
+        colRipple: Appearance.colors.colLayer1Active
+        colBackgroundToggled: Appearance.colors.colSecondaryContainer
+        colBackgroundToggledHover: Appearance.colors.colSecondaryContainerHover
+        colRippleToggled: Appearance.colors.colSecondaryContainerActive
+
+        contentItem: MaterialSymbol {
+            anchors.centerIn: parent
+            text: barBtn.buttonIcon
+            iconSize: Appearance.font.pixelSize.larger
+            fill: barBtn.toggled ? 1 : 0
+            color: barBtn.toggled ? Appearance.m3colors.m3onSecondaryContainer : Appearance.colors.colOnLayer0
+            Behavior on color {
+                animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
             }
         }
     }

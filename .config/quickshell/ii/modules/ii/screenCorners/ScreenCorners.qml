@@ -15,8 +15,8 @@ Scope {
     property var actionForCorner: ({
         [RoundCorner.CornerEnum.TopLeft]: () => {},
         [RoundCorner.CornerEnum.BottomLeft]: () => {},
-        [RoundCorner.CornerEnum.TopRight]: () => GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen,
-        [RoundCorner.CornerEnum.BottomRight]: () => GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen
+        [RoundCorner.CornerEnum.TopRight]: () => {},
+        [RoundCorner.CornerEnum.BottomRight]: () => {}
     })
 
     component CornerPanelWindow: PanelWindow {

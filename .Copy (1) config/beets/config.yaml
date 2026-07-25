@@ -1,0 +1,18 @@
+directory: ~/Music
+library: ~/.config/beets/library.db
+
+import:
+  copy: no
+  move: no
+  write: yes
+  log: ~/.config/beets/import.log
+
+plugins: fetchart embedart chroma
+
+fetchart:
+  auto: yes
+  sources: '*'
+
+embedart:
+  auto: yes
+  compare_threshold: 10

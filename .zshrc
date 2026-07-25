@@ -29,6 +29,10 @@ alias hcf="nano $HOME/.config/hypr/hyprland.conf"
 alias memusers='ps axo rss,comm --sort=-rss | head -n 6 | awk '\''NR==1 {print $1, $2; next} {printf "%.2f MB\t%s\n", $1/1024, $2}'\'''
 alias memuserspriv='ps axo pid,comm --sort=-rss | head -n 6 | awk '\''NR==1 {next} {print $1, $2}'\'' | while read pid name; do priv=$(awk '\''/^Private_Dirty/{sum+=$2} END{printf "%.2f MB", sum/1024}'\'' /proc/$pid/smaps 2>/dev/null); echo "$priv\t$name"; done | sort -rn'
 
+
+# list files by line count
+alias filesbyline='find . -type f -name ".*" -o -type f | xargs wc -l | sort -n'
+
 # --- Disk mount/unmount ---
 mntdisk() {
     local disks=()

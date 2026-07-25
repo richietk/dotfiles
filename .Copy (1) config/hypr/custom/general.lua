@@ -1,0 +1,15 @@
+-- Built-in display at 2x scale (HiDPI)
+hl.monitor({
+    output = "eDP-1",
+    mode = "2880x1800@90",
+    position = "0x0",
+    scale = 2
+})
+
+-- External monitor stays at 1x, repositioned to account for eDP-1's logical width (2880/2 = 1440)
+hl.monitor({
+    output = "HDMI-A-1",
+    mode = "1920x1080@60",
+    position = "1440x0",
+    scale = 1
+})

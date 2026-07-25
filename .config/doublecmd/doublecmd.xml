@@ -158,13 +158,13 @@
   </Toolbars>
   <MainWindow>
     <Position Save="True">
-      <Left>80</Left>
+      <Left>0</Left>
       <Top>0</Top>
-      <Width>715</Width>
-      <Height>820</Height>
+      <Width>955</Width>
+      <Height>1040</Height>
       <PixelsPerInch>96</PixelsPerInch>
       <Maximized>True</Maximized>
-      <Splitter>71,3530655391121</Splitter>
+      <Splitter>51,3302034428795</Splitter>
     </Position>
   </MainWindow>
   <Language>
@@ -216,7 +216,7 @@
     <ColumnsTitleLikeValues>False</ColumnsTitleLikeValues>
     <CutTextToColumnWidth>True</CutTextToColumnWidth>
     <ExtendCellWidth>False</ExtendCellWidth>
-    <ShowSystemFiles>False</ShowSystemFiles>
+    <ShowSystemFiles>True</ShowSystemFiles>
     <ListFilesInThread>True</ListFilesInThread>
     <LoadIconsSeparately>True</LoadIconsSeparately>
     <DelayLoadingTabs>True</DelayLoadingTabs>

@@ -106,7 +106,6 @@ DialogListItem {
                     colRipple: Appearance.colors.colLayer4Active
                     onClicked: {
                         Network.openPublicWifiPortal()
-                        GlobalStates.sidebarRightOpen = false
                     }
                 }
             }
