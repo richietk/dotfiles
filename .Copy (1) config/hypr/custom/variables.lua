@@ -1,2 +1,0 @@
-fileManager = "doublecmd"
-browser = "firefox"
