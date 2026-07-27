@@ -25,7 +25,7 @@ in
   boot.loader.efi.canTouchEfiVariables = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.kernel.sysctl."net.ipv4.tcp_mtu_probing" = 1;
-  boot.kernelParams = [ ''acpi_osi="Windows 2020"'' "reboot=acpi" ];
+  boot.kernelParams = [ ''acpi_osi="Windows 2020"'' "reboot=acpi" "amd_iommu=off" ];
 
   # Network
   networking.hostName = "nixos";
