@@ -1,3 +1,9 @@
+hl.config({
+    misc = {
+        background_color = "rgba(000000FF)",
+    }
+})
+
 -- Built-in display at 2x scale (HiDPI)
 hl.monitor({
     output = "eDP-1",

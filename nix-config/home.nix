@@ -67,7 +67,6 @@ in
     pkgs-unstable.antigravity-cli
     hyprlock
     hypridle
-    hyprpaper
     wlogout
     fuzzel
     grim
