@@ -25,7 +25,7 @@ in
   boot.loader.efi.canTouchEfiVariables = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.kernel.sysctl."net.ipv4.tcp_mtu_probing" = 1;
-  boot.kernelParams = [ ''acpi_osi="Windows 2020"'' "reboot=acpi" "amd_iommu=off" ];
+  boot.kernelParams = [ ''acpi_osi="Windows 2020"'' "reboot=efi" "amd_iommu=off" ];
 
   # Network
   networking.hostName = "nixos";
@@ -64,28 +64,49 @@ services.openssh.enable=true;
   # Desktop
   services.xserver.enable = true;
   services.xserver.xkb = { layout = "hu"; variant = ""; };
-  services.displayManager.sddm = {
+  # SDDM (sugar-candy) — kept for easy rollback, swap comments to re-enable
+  # services.displayManager.sddm = {
+  #   enable = true;
+  #   theme = "sugar-candy";
+  #   extraPackages = [ pkgs.kdePackages.qt5compat ];
+  #   package = lib.mkForce (pkgs.kdePackages.sddm.override {
+  #     sddm-unwrapped = pkgs.kdePackages.sddm.unwrapped.overrideAttrs (old: {
+  #       postInstall = (old.postInstall or "") + ''
+  #         ln -sf $out/bin/sddm-greeter-qt6 $out/bin/sddm-greeter
+  #       '';
+  #     });
+  #   });
+  #   settings = {
+  #     Theme = {
+  #       CursorTheme = "GoogleDot-White";
+  #       Font = "Noto Sans,10,-1,0,400,0,0,0,0,0,0,0,0,0,0,1";
+  #     };
+  #     Users = {
+  #       MaximumUid = 60513;
+  #       MinimumUid = 1000;
+  #     };
+  #   };
+  # };
+
+  # greetd + tuigreet (lightweight TUI greeter, replaces SDDM)
+  # F2 = session list, F3 = session picker, remembers last user+session per user
+  services.greetd = {
     enable = true;
-    theme = "sugar-candy";
-    extraPackages = [ pkgs.kdePackages.qt5compat ];
-    package = lib.mkForce (pkgs.kdePackages.sddm.override {
-      sddm-unwrapped = pkgs.kdePackages.sddm.unwrapped.overrideAttrs (old: {
-        postInstall = (old.postInstall or "") + ''
-          ln -sf $out/bin/sddm-greeter-qt6 $out/bin/sddm-greeter
-        '';
-      });
-    });
     settings = {
-      Theme = {
-        CursorTheme = "GoogleDot-White";
-        Font = "Noto Sans,10,-1,0,400,0,0,0,0,0,0,0,0,0,0,1";
-      };
-      Users = {
-        MaximumUid = 60513;
-        MinimumUid = 1000;
+      default_session = {
+        command = ''
+          ${pkgs.tuigreet}/bin/tuigreet \
+            --time \
+            --asterisks \
+            --remember \
+            --remember-user-session \
+            --sessions ${config.services.displayManager.sessionData.desktops}/share/xsessions:${config.services.displayManager.sessionData.desktops}/share/wayland-sessions
+        '';
+        user = "greeter";
       };
     };
   };
+  services.displayManager.sddm.enable = lib.mkForce false;
   services.desktopManager.plasma6.enable = true;
   programs.hyprland.enable = true;
 
@@ -117,7 +138,10 @@ services.openssh.enable=true;
     settings.DISK_LAPTOPMODE_ENABLE = 0;
   };
   services.asusd.enable = true;
-  systemd.tmpfiles.rules = [ "d /etc/asusd 0755 root root -" ];
+  systemd.tmpfiles.rules = [
+    "d /etc/asusd 0755 root root -"
+    "d /var/cache/tuigreet 0755 greeter greeter -"
+  ];
 
   # Fonts
   fonts.packages = with pkgs; [

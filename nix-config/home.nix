@@ -21,6 +21,7 @@ in
     ripgrep
     fastfetch
     btop
+    bluetui
     eza
     zoxide
     fzf
@@ -88,6 +89,7 @@ in
     just
     neovim
     fd
+    syncthing
     (pkgs.writeShellApplication {
       name = "netwatch";
       runtimeInputs = with pkgs; [ tshark iproute2 gawk util-linux ];
@@ -322,9 +324,6 @@ in
     };
   };
 
-  services.syncthing = {
-    enable = true;
-  };
 
   systemd.user.services.pktlog-atvpn = {
     Unit = {
