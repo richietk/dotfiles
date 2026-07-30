@@ -5,21 +5,19 @@ import qs.modules.common.widgets
 
 Loader {
     id: root
-    property bool vertical: false
     property color color: Appearance.colors.colOnSurfaceVariant
     active: HyprlandXkb.layoutCodes.length > 1
     visible: active
 
     function abbreviateLayoutCode(fullCode) {
-    return fullCode.split(':').map(layout => {
+        return fullCode.split(':').map(layout => {
             const baseLayout = layout.split('-')[0];
             return baseLayout.slice(0, 4);
         }).join('\n');
     }
 
     sourceComponent: Item {
-        implicitWidth: root.vertical ? null : layoutCodeText.implicitWidth
-        implicitHeight: root.vertical ? layoutCodeText.implicitHeight : null
+        implicitWidth: layoutCodeText.implicitWidth
 
         StyledText {
             id: layoutCodeText

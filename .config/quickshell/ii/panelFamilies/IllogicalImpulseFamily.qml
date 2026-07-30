@@ -14,7 +14,7 @@ import qs.modules.ii.sessionScreen
 import qs.modules.ii.bar
 
 Scope {
-    PanelLoader { extraCondition: !Config.options.bar.vertical; component: Bar {} }
+    PanelLoader { component: Bar {} }
     PanelLoader { component: BarDialogs {} }
     PanelLoader { component: Lock {} }
     PanelLoader { component: NotificationPopup {} }

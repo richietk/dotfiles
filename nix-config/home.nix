@@ -58,6 +58,7 @@ in
     file-rename
     pyright
     strace
+    psmisc
     testdisk
     tesseract
     trash-cli
