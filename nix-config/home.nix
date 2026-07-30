@@ -41,6 +41,7 @@ in
     sysstat
     unzip
     unrar
+    p7zip
     github-cli
     yq-go
     python3
