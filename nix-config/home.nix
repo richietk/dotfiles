@@ -288,6 +288,9 @@ in
   home.file.".config/doublecmd/multiarc.ini".source =
     config.lib.file.mkOutOfStoreSymlink "/home/richard/dotfiles/.config/doublecmd/multiarc.ini";
 
+  home.file.".config/gallery-dl".source =
+    config.lib.file.mkOutOfStoreSymlink "/home/richard/dotfiles/.config/gallery-dl";
+
   programs.firefox = {
     enable = true;
     configPath = "${config.xdg.configHome}/mozilla/firefox";

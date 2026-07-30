@@ -160,8 +160,8 @@
     <Position Save="True">
       <Left>0</Left>
       <Top>0</Top>
-      <Width>955</Width>
-      <Height>1000</Height>
+      <Width>715</Width>
+      <Height>820</Height>
       <PixelsPerInch>96</PixelsPerInch>
       <Maximized>True</Maximized>
       <Splitter>51,3302034428795</Splitter>
@@ -730,7 +730,7 @@
           <Title>Name</Title>
           <Unique>6BA46A35-1A5E-4C80-89C3-B842CE1A64D3</Unique>
           <FuncString>[DC().GETFILENAMENOEXT{}]</FuncString>
-          <Width>437</Width>
+          <Width>584</Width>
           <Align>0</Align>
           <Font>
             <Name>default</Name>

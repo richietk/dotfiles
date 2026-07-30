@@ -159,6 +159,14 @@ services.openssh.enable=true;
   programs.zsh.enable = true;
   programs.wireshark.enable = true;
 
+  # FHS compatibility for pip/uv venvs with compiled C extensions (numpy, etc.)
+  programs.nix-ld.enable = true;
+  programs.nix-ld.libraries = with pkgs; [
+    stdenv.cc.cc
+    zlib
+    openssl
+  ];
+
   # Users
   users.users."richard" = {
     isNormalUser = true;
