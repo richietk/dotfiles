@@ -138,11 +138,30 @@ services.openssh.enable=true;
     settings.DISK_LAPTOPMODE_ENABLE = 0;
   };
   services.asusd.enable = true;
-  # asus-shutdown (asusctl's deferred GPU firmware writer) does EC/WMI writes
-  # during late shutdown and intermittently prevents this dGPU-less Vivobook
-  # from powering off; it is useless without a discrete GPU, so mask it.
-  # asusd itself keeps running and still applies the 90% charge limit.
+  # asus-shutdown (asusctl's deferred GPU firmware writer) is useless without a
+  # discrete GPU and ignores SIGTERM with SendSIGKILL=no, stalling every stop
+  # for its full 45s timeout — mask it. asusd itself keeps running and still
+  # applies the 90% charge limit.
   systemd.services.asus-shutdown.enable = false;
+
+  # WORKAROUND: poweroff hangs with hardware still on unless PID 1 has done a
+  # daemon-reload at some point after boot (stale initrd switch-root state is
+  # inherited by systemd-shutdown otherwise). Verified 2026-07-31: any reload —
+  # manual or via nixos-rebuild switch — makes poweroff reach S5 reliably.
+  systemd.services.boot-daemon-reload = {
+    description = "Reload systemd once after boot so poweroff reaches S5";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "multi-user.target" ];
+    serviceConfig = {
+      # Type=exec so PID 1 never waits on this job while it processes the
+      # reload — rules out any reload-from-a-unit deadlock.
+      Type = "exec";
+      ExecStart = pkgs.writeShellScript "boot-daemon-reload" ''
+        sleep 10
+        exec ${config.systemd.package}/bin/systemctl daemon-reload
+      '';
+    };
+  };
   systemd.tmpfiles.rules = [
     "d /etc/asusd 0755 root root -"
     "d /var/cache/tuigreet 0755 greeter greeter -"
