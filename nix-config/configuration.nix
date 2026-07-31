@@ -23,7 +23,13 @@ in
   # Bootloader
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  # Default (older, stable) kernel instead of linuxPackages_latest while
+  # chasing the intermittent poweroff hang — rules bleeding-edge regressions
+  # in or out. consoleLogLevel=7 keeps kernel INFO messages ("reboot: Power
+  # down") visible on screen during shutdown so a hang can be localized to
+  # kernel vs. firmware.
+  boot.kernelPackages = pkgs.linuxPackages;
+  boot.consoleLogLevel = 7;
   boot.kernel.sysctl."net.ipv4.tcp_mtu_probing" = 1;
   boot.kernelParams = [ "reboot=efi" "amd_iommu=off" ];
 
