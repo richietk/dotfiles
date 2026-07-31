@@ -138,6 +138,11 @@ services.openssh.enable=true;
     settings.DISK_LAPTOPMODE_ENABLE = 0;
   };
   services.asusd.enable = true;
+  # asus-shutdown (asusctl's deferred GPU firmware writer) does EC/WMI writes
+  # during late shutdown and intermittently prevents this dGPU-less Vivobook
+  # from powering off; it is useless without a discrete GPU, so mask it.
+  # asusd itself keeps running and still applies the 90% charge limit.
+  systemd.services.asus-shutdown.enable = false;
   systemd.tmpfiles.rules = [
     "d /etc/asusd 0755 root root -"
     "d /var/cache/tuigreet 0755 greeter greeter -"
