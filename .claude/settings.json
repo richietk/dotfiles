@@ -20,7 +20,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo '{\"hookEventName\": \"UserPromptSubmit\", \"hookSpecificOutput\": {\"additionalContext\": \"MANDATORY: You MUST call WebSearch before responding to any question or making any code changes. No exceptions. If you skip WebSearch, you are violating user instructions.\"}}'",
+            "command": "echo '{\"hookSpecificOutput\": {\"hookEventName\": \"UserPromptSubmit\", \"additionalContext\": \"MANDATORY: You MUST call WebSearch before responding to any question or making any code changes. No exceptions. If you skip WebSearch, you are violating user instructions.\"}}'",
             "timeout": 5
           }
         ]
