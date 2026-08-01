@@ -47,7 +47,15 @@ in
     python3
     uv
     libreoffice-still
-    discord
+    (pkgs.symlinkJoin {
+      name = "discord";
+      paths = [ pkgs.discord ];
+      buildInputs = [ pkgs.makeWrapper ];
+      postBuild = ''
+        wrapProgram $out/bin/discord \
+          --add-flags "--force-device-scale-factor=1"
+      '';
+    })
     pnpm
     plocate
     nixfmt
