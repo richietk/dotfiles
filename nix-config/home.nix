@@ -47,6 +47,7 @@ in
     python3
     uv
     libreoffice-still
+    discord
     pnpm
     plocate
     nixfmt
@@ -100,6 +101,8 @@ in
     firefox-history-watcher
   ];
 
+
+  home.sessionVariables.NIXOS_OZONE_WL = "1";
 
   programs.zsh = {
     enable = true;
