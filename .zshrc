@@ -14,8 +14,26 @@ alias bootstats='python3 ~/dotfiles/scripts/bootstats'
 # --- Quickshell ---
 alias qsrestart='pkill -9 -x quickshell 2>/dev/null; pkill quickshell 2>/dev/null; sleep 0.5; qs -c ii &'
 
-# play yt audio
-yt() { mpv --no-video --ytdl-format=bestaudio "ytdl://ytsearch1:$*" }
+# play yt audio; -d also downloads as opus with full metadata+thumbnail to ~/Music/yt_ddl/
+yt() {
+    local download=false
+    local -a args
+    for arg in "$@"; do
+        if [[ "$arg" == "-d" ]]; then
+            download=true
+        else
+            args+=("$arg")
+        fi
+    done
+    if [[ "$download" == true ]]; then
+        mkdir -p "$HOME/Music/yt_ddl"
+        yt-dlp -x --audio-format opus --audio-quality 0 \
+            --embed-thumbnail --embed-metadata \
+            -o "$HOME/Music/yt_ddl/%(title)s.%(ext)s" \
+            "ytsearch1:${args[*]}" &
+    fi
+    mpv --no-video --ytdl-format=bestaudio "ytdl://ytsearch1:${args[*]}"
+}
 
 # --- Hyprland info ---
 alias hmon='hyprctl monitors'

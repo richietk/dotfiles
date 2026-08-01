@@ -22,6 +22,7 @@ in
 
   # Bootloader
   boot.loader.systemd-boot.enable = true;
+  boot.loader.systemd-boot.configurationLimit = 5;
   boot.loader.efi.canTouchEfiVariables = true;
   # Default (older, stable) kernel instead of linuxPackages_latest while
   # chasing the intermittent poweroff hang — rules bleeding-edge regressions
@@ -38,6 +39,8 @@ in
   networking.networkmanager.enable = true;
   networking.networkmanager.dns = "systemd-resolved";
   services.resolved.enable = true;
+  age.identityPaths = [ "/etc/ssh/ssh_host_ed25519_key" "/etc/ssh/ssh_host_rsa_key" ];
+
   age.secrets."atvpn.conf"    = { file = ../secrets/atvpn.conf.age;    mode = "0600"; };
   age.secrets."atvpn_pf.conf" = { file = ../secrets/atvpn_pf.conf.age; mode = "0600"; };
   age.secrets."huvpn.conf"    = { file = ../secrets/huvpn.conf.age;     mode = "0600"; };
@@ -50,7 +53,7 @@ in
     huvpn_pf = { autostart = false; configFile = config.age.secrets."huvpn_pf.conf".path; };
   };
  
-services.openssh.enable=true;
+  # services.openssh.enable=true;
   # Locale / timezone
   time.timeZone = "Europe/Vienna";
   i18n.defaultLocale = "en_US.UTF-8";
@@ -127,7 +130,7 @@ services.openssh.enable=true;
   };
 
   # Printing
-  services.printing.enable = true;
+  # services.printing.enable = true;
 
   # Bluetooth
   hardware.bluetooth.enable = true;
