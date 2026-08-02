@@ -299,7 +299,8 @@ in
   services.cron = {
     enable = true;
     systemCronJobs = [
-      
+      # Keep ProtonDrive API session alive — token expires after inactivity
+      "0 */12 * * * richard ${pkgs.rclone}/bin/rclone lsjson pdrive: --max-depth 1 > /dev/null 2>&1"
     ];
   };
 

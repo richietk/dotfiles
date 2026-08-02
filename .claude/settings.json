@@ -1,5 +1,9 @@
 {
   "permissions": {
+    "deny": [
+      "Bash(sudo nixos-rebuild *)",
+      "Bash(nixos-rebuild *)"
+    ],
     "allow": [
       "Bash(ls *)",
       "Bash(cat *)",

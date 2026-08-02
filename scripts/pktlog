@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 IFACE="${1:?Usage: pktlog <interface>}"
+PATH="/run/wrappers/bin:$PATH"
 exec tshark -i "$IFACE" -l -q \
   -T fields \
   -e frame.time \

@@ -78,13 +78,12 @@ Item { // Bar content region
             anchors.fill: parent
             spacing: 0
 
-            ActiveWindow {
-                Layout.leftMargin: 10 + Appearance.rounding.screenRounding
-                Layout.rightMargin: Appearance.rounding.screenRounding
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                visible: root.useShortenedForm === 0
+            Item { Layout.fillWidth: true }
+            Resources {
+                alwaysShowAllResources: root.useShortenedForm === 2
+                Layout.fillWidth: root.useShortenedForm === 2
             }
+            Item { Layout.fillWidth: true }
         }
     }
 
@@ -94,24 +93,9 @@ Item { // Bar content region
             top: parent.top
             bottom: parent.bottom
             horizontalCenter: parent.horizontalCenter
-            horizontalCenterOffset: -(root.centerSideModuleWidth / 2)
+            horizontalCenterOffset: 0
         }
         spacing: 4
-
-        BarGroup {
-            id: leftCenterGroup
-            anchors.verticalCenter: parent.verticalCenter
-            implicitWidth: root.centerSideModuleWidth / 2
-
-            Resources {
-                alwaysShowAllResources: root.useShortenedForm === 2
-                Layout.fillWidth: root.useShortenedForm === 2
-            }
-        }
-
-        VerticalBarSeparator {
-            visible: Config.options?.bar.borderless
-        }
 
         BarGroup {
             id: middleCenterGroup

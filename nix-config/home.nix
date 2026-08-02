@@ -372,7 +372,7 @@ in
     };
     Service = {
       ExecStart = "${firefox-history-watcher}/bin/firefox-history-watcher";
-      Restart = "on-failure";
+      Restart = "always";
       RestartSec = "5s";
     };
     Install = {
