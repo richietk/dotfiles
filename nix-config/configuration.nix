@@ -220,8 +220,8 @@ in
   # Touchpad BTN_LEFT filter (ASUS VivoBook stuck-click firmware bug)
   systemd.user.services.touchpad-filter = {
     description = "Touchpad BTN_LEFT filter";
-    wantedBy = [ "graphical-session.target" ];
-    after = [ "graphical-session.target" ];
+    wantedBy = [ "default.target" ];
+    after = [ "default.target" ];
     unitConfig = {
       StartLimitIntervalSec = "120s";
       StartLimitBurst = 5;
