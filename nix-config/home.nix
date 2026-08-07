@@ -88,12 +88,12 @@ in
     neovim
     fd
     syncthing
+    gdu
     (pkgs.writeShellApplication {
       name = "netwatch";
       runtimeInputs = with pkgs; [ tshark iproute2 gawk util-linux ];
       text = builtins.readFile ../scripts/netwatch;
     })
-    firefox-history-watcher
   ];
 
 
