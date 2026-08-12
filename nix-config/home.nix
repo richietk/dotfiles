@@ -26,6 +26,7 @@ in
     cowsay
     cmatrix
     yt-dlp
+    deno
     translate-shell
     tree
     wget
@@ -89,6 +90,7 @@ in
     fd
     syncthing
     gdu
+    jdupes
     (pkgs.writeShellApplication {
       name = "netwatch";
       runtimeInputs = with pkgs; [ tshark iproute2 gawk util-linux ];

@@ -1,7 +1,7 @@
 set shell := ["zsh", "-euo", "pipefail", "-c"]
 
-SSD_MOUNT := "/run/media/richard/7ABF-7932"
-RESTIC_REPO := SSD_MOUNT + "/backup/restic_repo"
+SSD_MOUNT := "/run/media/richard/Expansion"
+RESTIC_REPO := SSD_MOUNT + "/backups/restic_repo"
 
 # Update flake inputs and rebuild NixOS
 update:
@@ -21,6 +21,13 @@ cleanup:
     nix store gc
     nix store optimise
 
+# Delete Go module cache, npm cache, Firefox/uv/go-build/mesa caches
+clean:
+    command -v go &>/dev/null && go clean -modcache -cache || rm -rf ~/go/pkg/mod ~/.cache/go-build
+    command -v npm &>/dev/null && npm cache clean --force || rm -rf ~/.npm/_cacache
+    command -v uv &>/dev/null && uv cache clean || rm -rf ~/.cache/uv
+    rm -rf ~/.cache/mozilla ~/.cache/mesa_shader_cache
+
 # Run all backups: restic to local SSD, then sync to ProtonDrive and Google Drive
 backup:
     #!/usr/bin/env zsh
@@ -33,16 +40,25 @@ backup:
 
     echo "==> Backing up to $RESTIC_REPO..."
     restic -r "$RESTIC_REPO" backup --verbose \
+        --exclude "$HOME/.cache" \
+        --exclude "$HOME/.nix-profile" \
+        --exclude "$HOME/.nix-defexpr" \
+        --exclude "$HOME/.npm" \
+        --exclude "$HOME/.var" \
+        --exclude "$HOME/.mozilla" \
+        --exclude "$HOME/.config/mozilla" \
         --exclude "$HOME/.config/google-chrome" \
         --exclude "$HOME/.config/discord" \
-        --exclude "$HOME/.config/mozilla" \
         --exclude "$HOME/.config/Code" \
         --exclude "$HOME/.config/libreoffice" \
         --exclude "$HOME/.config/.venv" \
+        --exclude "$HOME/.local/share/Trash" \
+        --exclude "$HOME/.local/share/baloo" \
+        --exclude "$HOME/.zcompdump*" \
+        --exclude "$HOME/.Copy (1) config" \
         --exclude "**/.venv/" \
         --exclude "*.lock" \
-        "$HOME/.config" "$HOME/Desktop" "$HOME/Documents" "$HOME/Downloads" \
-        "$HOME/Music" "$HOME/Pictures" "$HOME/Videos" "$HOME/dotfiles"
+        "$HOME"
 
     echo "==> Pruning old snapshots..."
     restic -r "$RESTIC_REPO" forget --keep-last 10 --prune
@@ -51,8 +67,8 @@ backup:
     rclone copy "$HOME/Documents/docs" pdrive:backup/docs \
         --protondrive-replace-existing-draft=true -P
 
-    echo "==> Syncing restic repo to Google Drive..."
-    rclone copy "$RESTIC_REPO" gdrive:backup/restic_repo \
+    echo "==> Syncing restic repo to GoogleDrive..."
+    rclone copy "$RESTIC_REPO" gdrive:restic_repo \
         --progress --transfers 4 --checkers 8 \
         --retries 10 --low-level-retries 20 \
         --timeout 5m --contimeout 1m --stats 5s
