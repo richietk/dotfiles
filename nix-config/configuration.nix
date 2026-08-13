@@ -67,8 +67,9 @@ in
   # before the user session starts in normal use. On very fast logins (<3s)
   # symlinks may not be fully applied yet — roll back if this is a problem.
   systemd.services."home-manager-richard" = {
-    after    = [ "graphical.target" ];
-    wantedBy = [ "graphical.target" ];
+    after    = lib.mkForce [ "graphical.target" "nix-daemon.socket" ];
+    before   = lib.mkForce [];
+    wantedBy = lib.mkForce [ "graphical.target" ];
   };
  
   # services.openssh.enable=true;
