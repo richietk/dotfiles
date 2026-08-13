@@ -23,6 +23,7 @@ in
   # Bootloader
   boot.loader.systemd-boot.enable = true;
   boot.loader.systemd-boot.configurationLimit = 5;
+  boot.loader.timeout = 0;
   boot.loader.efi.canTouchEfiVariables = true;
   # Default (older, stable) kernel instead of linuxPackages_latest while
   # chasing the intermittent poweroff hang — rules bleeding-edge regressions
@@ -56,6 +57,16 @@ in
   # Start VPN after graphical.target (login screen is visible) so it doesn't
   # block boot, but is up by the time the user finishes typing their password.
   systemd.services."wg-quick-atvpn" = {
+    after    = [ "graphical.target" ];
+    wantedBy = [ "graphical.target" ];
+  };
+
+  # Run home-manager activation after graphical.target instead of before it,
+  # so the login screen appears ~3.5s earlier. home-manager finishes in ~3.5s
+  # which is less than typical password-typing time, so dotfiles are ready
+  # before the user session starts in normal use. On very fast logins (<3s)
+  # symlinks may not be fully applied yet — roll back if this is a problem.
+  systemd.services."home-manager-richard" = {
     after    = [ "graphical.target" ];
     wantedBy = [ "graphical.target" ];
   };

@@ -7,6 +7,19 @@ def to_sec(s):
     if s.endswith("s"):  return float(s[:-1])
     return 0.0
 
+def pct(vals, p):
+    s = sorted(vals)
+    return s[int(round((len(s) - 1) * p / 100))]
+
+last_n = None
+args = sys.argv[1:]
+if args and args[0].lstrip('-').startswith('last'):
+    arg0 = args[0].lstrip('-')
+    if '=' in arg0:
+        last_n = int(arg0.split('=', 1)[1])
+    elif len(args) > 1:
+        last_n = int(args[1])
+
 boots = subprocess.run(
     ["journalctl", "--list-boots", "--no-pager"],
     capture_output=True, text=True
@@ -36,10 +49,12 @@ for line in lines:
     if m: data["total"].append(to_sec(m.group(1)))
 
 analyzed = len(data["total"])
-print(f"boots: {analyzed} analyzed / {len(indices)} found in logs")
-print(f"  {'phase':<12} {'avg':>7}  {'min':>7}  {'max':>7}  {'current':>7}")
+suffix = f"  (last {last_n})" if last_n else ""
+print(f"boots: {analyzed} analyzed / {len(indices)} found in logs{suffix}")
+print(f"  {'phase':<12} {'avg':>7}  {'p5':>7}  {'p95':>7}  {'current':>7}")
 for f in fields:
     vals = data[f]
     if vals:
-        cur = f"{vals[-1]:>6.2f}s"
-        print(f"  {f:<12} {sum(vals)/len(vals):>6.2f}s  {min(vals):>6.2f}s  {max(vals):>6.2f}s  {cur:>7}")
+        cur = vals[-1]
+        v = vals[-last_n:] if last_n else vals
+        print(f"  {f:<12} {sum(v)/len(v):>6.2f}s  {pct(v,5):>6.2f}s  {pct(v,95):>6.2f}s  {cur:>6.2f}s")
