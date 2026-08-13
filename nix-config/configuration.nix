@@ -47,10 +47,17 @@ in
   age.secrets."huvpn_pf.conf" = { file = ../secrets/huvpn_pf.conf.age;  mode = "0600"; };
 
   networking.wg-quick.interfaces = {
-    atvpn    = { autostart = true;  configFile = config.age.secrets."atvpn.conf".path; };
+    atvpn    = { autostart = false; configFile = config.age.secrets."atvpn.conf".path; };
     atvpn_pf = { autostart = false; configFile = config.age.secrets."atvpn_pf.conf".path; };
     huvpn    = { autostart = false; configFile = config.age.secrets."huvpn.conf".path; };
     huvpn_pf = { autostart = false; configFile = config.age.secrets."huvpn_pf.conf".path; };
+  };
+
+  # Start VPN after graphical.target (login screen is visible) so it doesn't
+  # block boot, but is up by the time the user finishes typing their password.
+  systemd.services."wg-quick-atvpn" = {
+    after    = [ "graphical.target" ];
+    wantedBy = [ "graphical.target" ];
   };
  
   # services.openssh.enable=true;

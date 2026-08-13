@@ -29,14 +29,13 @@ yt() {
         mkdir -p "$HOME/Music/yt_ddl"
         yt-dlp -x --audio-format opus --audio-quality 0 \
             --embed-thumbnail --embed-metadata \
-            --cookies-from-browser firefox \
+            --cookies-from-browser firefox --force-ipv4 \
             -o "$HOME/Music/yt_ddl/%(title)s.%(ext)s" \
             "ytsearch1:${args[*]}" &
     fi
-    mpv --no-video \
-        --ytdl-format="bestaudio[ext=webm]/bestaudio[ext=m4a]/bestaudio/worst[acodec!=none]" \
-        --ytdl-raw-options=cookies-from-browser=firefox \
-        "ytdl://ytsearch1:${args[*]}"
+    yt-dlp -f "bestaudio[ext=webm]/bestaudio[ext=m4a]/bestaudio/worst[acodec!=none]" \
+        --cookies-from-browser firefox --force-ipv4 -q --no-warnings \
+        -o - "ytsearch1:${args[*]}" | mpv --no-video -
 }
 
 # --- Hyprland info ---
