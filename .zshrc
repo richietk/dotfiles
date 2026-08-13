@@ -4,7 +4,8 @@
 # ============================================================
 
 
-
+# ffmstats
+alias ffmstats="ffprobe -v quiet -print_format json -show_streams -show_format"
 # History
 alias h="history"
 

@@ -1,0 +1,2 @@
+[binds]
+r = exec mogrify -rotate 90 "$imv_current_file"

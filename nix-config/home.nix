@@ -81,6 +81,7 @@ in
     git
     libnatpmp
     qview
+    imv
     mpv
     wl-clipboard
     rbw
@@ -184,6 +185,10 @@ in
   # Neovim
   home.file.".config/nvim".source =
     config.lib.file.mkOutOfStoreSymlink "/home/richard/dotfiles/.config/nvim";
+
+  # imv
+  home.file.".config/imv".source =
+    config.lib.file.mkOutOfStoreSymlink "/home/richard/dotfiles/.config/imv";
 
   # mpv
   home.file.".config/mpv".source =
