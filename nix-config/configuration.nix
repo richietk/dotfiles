@@ -171,6 +171,18 @@ in
   # for its full 45s timeout — mask it. asusd itself keeps running and still
   # applies the 90% charge limit.
   systemd.services.asus-shutdown.enable = false;
+
+  # Force-kill all services after 10s on shutdown instead of waiting 1.5m.
+  # Both system and user managers need this — user session hangs are controlled
+  # by the user manager's own copy of DefaultTimeoutStopSec.
+  # ShutdownWatchdogSec is a hardware watchdog fallback: if the kernel itself
+  # hangs during shutdown, the watchdog resets the machine after 2 minutes.
+  systemd.settings.Manager = {
+    DefaultTimeoutStopSec = "10s";
+    ShutdownWatchdogSec = "2min";
+  };
+  systemd.user.extraConfig = "DefaultTimeoutStopSec=10s";
+
   systemd.tmpfiles.rules = [
     "d /etc/asusd 0755 root root -"
     "d /var/cache/tuigreet 0755 greeter greeter -"
