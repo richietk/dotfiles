@@ -323,5 +323,27 @@ in
     ];
   };
 
+  # Btrfs: monthly scrub for data integrity (only need to list / since all
+  # subvolumes are on the same device)
+  services.btrfs.autoScrub = {
+    enable = true;
+    interval = "monthly";
+    fileSystems = [ "/" ];
+  };
+
+  # Btrfs: hourly/daily/weekly snapshots of /home via snapper
+  services.snapper.configs.home = {
+    SUBVOLUME = "/home";
+    ALLOW_USERS = [ "richard" ];
+    TIMELINE_CREATE = true;
+    TIMELINE_CLEANUP = true;
+    TIMELINE_MIN_AGE = 1800;
+    TIMELINE_LIMIT_HOURLY = "10";
+    TIMELINE_LIMIT_DAILY = "7";
+    TIMELINE_LIMIT_WEEKLY = "4";
+    TIMELINE_LIMIT_MONTHLY = "6";
+    TIMELINE_LIMIT_YEARLY = "2";
+  };
+
   system.stateVersion = "26.05";
 }

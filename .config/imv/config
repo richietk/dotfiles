@@ -1,2 +1,3 @@
 [binds]
-r = exec mogrify -rotate 90 "$imv_current_file"
+r = rotate by 90
+<Shift+R> = exec mogrify -rotate 90 "$imv_current_file"
