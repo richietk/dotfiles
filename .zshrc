@@ -6,6 +6,8 @@
 # Make nix-ld libraries available to pip/uv venvs with compiled C extensions
 export LD_LIBRARY_PATH=$NIX_LD_LIBRARY_PATH${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
 
+# btrfs balance
+alias reclaim="sudo btrfs balance start -dusage=50 /home"
 
 # ffmstats
 alias ffmstats="ffprobe -v quiet -print_format json -show_streams -show_format"

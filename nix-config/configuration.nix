@@ -185,6 +185,7 @@ in
   # Nix settings
   nixpkgs.config.allowUnfree = true;
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.http-connections = 1;
 
 
   # Shell

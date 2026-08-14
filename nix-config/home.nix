@@ -92,6 +92,8 @@ in
     syncthing
     gdu
     jdupes
+    rustc
+    cargo
     (pkgs.writeShellApplication {
       name = "netwatch";
       runtimeInputs = with pkgs; [ tshark iproute2 gawk util-linux ];
