@@ -331,6 +331,22 @@ in
     fileSystems = [ "/" ];
   };
 
+  # Btrfs: hourly snapshots of /home via snapper
+  # persistentTimer ensures one snapshot runs on next boot if laptop was off
+  services.snapper.persistentTimer = true;
+  services.snapper.configs.home = {
+    SUBVOLUME = "/home";
+    ALLOW_USERS = [ "richard" ];
+    TIMELINE_CREATE = true;
+    TIMELINE_CLEANUP = true;
+    TIMELINE_MIN_AGE = 1800;
+    TIMELINE_LIMIT_HOURLY = "10";
+    TIMELINE_LIMIT_DAILY = "7";
+    TIMELINE_LIMIT_WEEKLY = "4";
+    TIMELINE_LIMIT_MONTHLY = "6";
+    TIMELINE_LIMIT_YEARLY = "2";
+  };
+
 
   system.stateVersion = "26.05";
 }
