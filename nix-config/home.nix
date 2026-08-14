@@ -94,6 +94,7 @@ in
     jdupes
     rustc
     cargo
+    gcc
     (pkgs.writeShellApplication {
       name = "netwatch";
       runtimeInputs = with pkgs; [ tshark iproute2 gawk util-linux ];
