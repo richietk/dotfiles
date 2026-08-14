@@ -185,7 +185,7 @@ in
   # Nix settings
   nixpkgs.config.allowUnfree = true;
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
-  nix.settings.http2 = false;
+
 
   # Shell
   programs.firefox.enable = true;
@@ -310,7 +310,7 @@ in
 
   services.locate = {
     enable = true;
-    locate = pkgs.plocate;
+    package = pkgs.plocate;
     interval = "daily";
   };
 
@@ -331,19 +331,6 @@ in
     fileSystems = [ "/" ];
   };
 
-  # Btrfs: hourly/daily/weekly snapshots of /home via snapper
-  services.snapper.configs.home = {
-    SUBVOLUME = "/home";
-    ALLOW_USERS = [ "richard" ];
-    TIMELINE_CREATE = true;
-    TIMELINE_CLEANUP = true;
-    TIMELINE_MIN_AGE = 1800;
-    TIMELINE_LIMIT_HOURLY = "10";
-    TIMELINE_LIMIT_DAILY = "7";
-    TIMELINE_LIMIT_WEEKLY = "4";
-    TIMELINE_LIMIT_MONTHLY = "6";
-    TIMELINE_LIMIT_YEARLY = "2";
-  };
 
   system.stateVersion = "26.05";
 }
