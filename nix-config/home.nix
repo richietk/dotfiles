@@ -348,6 +348,14 @@ in
         vimium
         # linkclump is not in NUR — install it manually from addons.mozilla.org
       ];
+      userContent = ''
+        @-moz-document url("about:newtab"), url("about:home") {
+          body, #newtab-window {
+            background-color: #000000 !important;
+            background-image: none !important;
+          }
+        }
+      '';
     };
   };
 
