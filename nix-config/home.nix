@@ -109,6 +109,13 @@ in
     enable = true;
     plugins = with pkgs.tmuxPlugins; [
       resurrect
+      {
+        plugin = continuum;
+        extraConfig = ''
+          set -g @continuum-restore 'on'
+          set -g @continuum-save-interval '10'
+        '';
+      }
     ];
   };
 
