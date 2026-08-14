@@ -15,18 +15,18 @@ rebuild:
         find . -type l -lname '/nix/store/*' -exec git rm --cached {} \; 2>/dev/null || true && \
         git add . && { git commit -m "update dotfiles" && git push || true; }
 
-# Remove generations older than 7 days, GC store, optimise
-cleanup:
+# Remove generations older than 7 days, GC store, optimise, delete caches, organize and tidy up
+putzfrau:
     sudo nix-collect-garbage --delete-older-than 7d
     nix store gc
     nix store optimise
-
-# Delete Go module cache, npm cache, Firefox/uv/go-build/mesa caches
-clean:
     command -v go &>/dev/null && go clean -modcache -cache || rm -rf ~/go/pkg/mod ~/.cache/go-build
     command -v npm &>/dev/null && npm cache clean --force || rm -rf ~/.npm/_cacache
     command -v uv &>/dev/null && uv cache clean || rm -rf ~/.cache/uv
     rm -rf ~/.cache/mozilla ~/.cache/mesa_shader_cache
+    mkdir -p ~/Documents/torrent_files && find ~ -type f -name "*.torrent" -exec mv {} ~/Documents/torrent_files/ \;
+    mkdir -p ~/Books && find ~ -type f -name "*.epub" -exec mv {} ~/Documents/Books/ \;
+
 
 # Run all backups: restic to local SSD, then sync to ProtonDrive and Google Drive
 backup:

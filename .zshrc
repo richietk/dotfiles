@@ -327,6 +327,7 @@ pw7z() {
 # --- Directory shortcuts ---
 SSD_MOUNT="/run/media/$USER/7ABF-7932"
 alias ssd='cd "$SSD_MOUNT"'
+alias hdd="cd /run/media/$USER/Expansion"
 alias richard="cd $HOME"
 alias thesis="cd $HOME/Documents/Thesis"
 alias config='cd ~/.config'

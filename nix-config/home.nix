@@ -14,7 +14,6 @@ in
 
   home.packages = with pkgs; [
     ripgrep
-    tmux	
     fastfetch
     btop
     bluetui
@@ -105,6 +104,13 @@ in
 
 
   home.sessionVariables.NIXOS_OZONE_WL = "1";
+
+  programs.tmux = {
+    enable = true;
+    plugins = with pkgs.tmuxPlugins; [
+      resurrect
+    ];
+  };
 
   programs.zsh = {
     enable = true;
