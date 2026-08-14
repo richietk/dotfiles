@@ -88,7 +88,12 @@ mntdisk() {
     fi
 
     local dev="${disks[$choice]%% *}"
-    udisksctl mount -b "$dev"
+    local out
+    out="$(udisksctl mount -b "$dev")" || { echo "$out" >&2; return 1; }
+    echo "$out"
+    local mntpt="${out##* at }"
+    mntpt="${mntpt%.}"
+    [[ -d "$mntpt" ]] && cd "$mntpt"
 }
 
 unmntdisk() {
@@ -126,6 +131,7 @@ unmntdisk() {
         return 1
     fi
     echo "$err"
+    cd ~
 }
 
 

@@ -730,7 +730,7 @@
           <Title>Name</Title>
           <Unique>6BA46A35-1A5E-4C80-89C3-B842CE1A64D3</Unique>
           <FuncString>[DC().GETFILENAMENOEXT{}]</FuncString>
-          <Width>584</Width>
+          <Width>218</Width>
           <Align>0</Align>
           <Font>
             <Name>default</Name>

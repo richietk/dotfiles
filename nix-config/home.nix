@@ -14,6 +14,7 @@ in
 
   home.packages = with pkgs; [
     ripgrep
+    tmux	
     fastfetch
     btop
     bluetui
