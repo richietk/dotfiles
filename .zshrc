@@ -64,6 +64,14 @@ alias t="trans"
 # list files by line count
 alias filesbyline='find . -type f -name ".*" -o -type f | xargs wc -l | sort -n'
 
+# filecount: filecount --maxdepth
+filecount() {
+  local depth="${1:-1}"
+  find . -mindepth 1 -maxdepth "$depth" -type d -print0 | while IFS= read -r -d '' dir; do
+    printf '%s %s\n' "$(find "$dir" -type f | wc -l)" "$dir"
+  done | sort -rn
+}
+
 # --- Disk mount/unmount ---
 mntdisk() {
     local disks=()

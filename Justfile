@@ -1,7 +1,7 @@
 set shell := ["zsh", "-euo", "pipefail", "-c"]
 
-SSD_MOUNT := "/run/media/richard/Expansion"
-RESTIC_REPO := SSD_MOUNT + "/backups/restic_repo"
+HDD_MOUNT := "/run/media/richard/Expansion"
+RESTIC_REPO := HDD_MOUNT + "/backups/restic_repo"
 
 # Update flake inputs and rebuild NixOS
 update:
@@ -28,13 +28,13 @@ putzfrau:
     mkdir -p ~/Books && find ~ -type f -name "*.epub" -exec mv {} ~/Documents/Books/ \;
 
 
-# Run all backups: restic to local SSD, then sync to ProtonDrive and Google Drive
+# Run all backups: restic to local HDD, then sync to ProtonDrive and Google Drive
 backup:
     #!/usr/bin/env zsh
-    SSD_MOUNT="{{SSD_MOUNT}}"
+    HDD_MOUNT="{{HDD_MOUNT}}"
     RESTIC_REPO="{{RESTIC_REPO}}"
 
-    mountpoint -q "$SSD_MOUNT" || { echo "SSD not mounted at $SSD_MOUNT" >&2; exit 1; }
+    mountpoint -q "$HDD_MOUNT" || { echo "HDD not mounted at $HDD_MOUNT" >&2; exit 1; }
 
     [[ -f "$RESTIC_REPO/config" ]] || restic -r "$RESTIC_REPO" init
 
@@ -47,6 +47,7 @@ backup:
         --exclude "$HOME/.var" \
         --exclude "$HOME/.mozilla" \
         --exclude "$HOME/.config/mozilla" \
+        --exclude "$HOME/.config/vesktop" \
         --exclude "$HOME/.config/google-chrome" \
         --exclude "$HOME/.config/discord" \
         --exclude "$HOME/.config/Code" \
@@ -54,23 +55,27 @@ backup:
         --exclude "$HOME/.config/.venv" \
         --exclude "$HOME/.local/share/Trash" \
         --exclude "$HOME/.local/share/baloo" \
+        --exclude "$HOME/.local/share/nvim" \
+        --exclude "$HOME/.claude/file-history" \
+        --exclude "$HOME/.claude/paste-cache" \
         --exclude "$HOME/.zcompdump*" \
         --exclude "$HOME/.Copy (1) config" \
         --exclude "**/.venv/" \
         --exclude "*.lock" \
         "$HOME"
 
+    # todo: backup or putzfrau?
     echo "==> Pruning old snapshots..."
-    restic -r "$RESTIC_REPO" forget --keep-last 10 --prune
+    restic -r "$RESTIC_REPO" forget --keep-last 50 --prune
 
     echo "==> Syncing to ProtonDrive..."
-    rclone copy "$HOME/Documents/docs" pdrive:backup/docs \
+    rclone copy "$HOME/Documents/" pdrive:backup/documents \
         --protondrive-replace-existing-draft=true -P
 
-    echo "==> Syncing restic repo to GoogleDrive..."
-    rclone copy "$RESTIC_REPO" gdrive:restic_repo \
-        --progress --transfers 4 --checkers 8 \
-        --retries 10 --low-level-retries 20 \
-        --timeout 5m --contimeout 1m --stats 5s
-
+    # echo "==> Syncing restic repo to GoogleDrive..."
+    # rclone copy "$RESTIC_REPO" gdrive:restic_repo \
+    #     --progress --transfers 4 --checkers 8 \
+    #     --retries 10 --low-level-retries 20 \
+    #     --timeout 5m --contimeout 1m --stats 5s
+    #
     echo "==> Backup done."
