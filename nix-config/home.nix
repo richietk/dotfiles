@@ -92,6 +92,7 @@ in
     qview
     imv
     mpv
+    qbittorrent
     wl-clipboard
     rbw
     pinentry-qt

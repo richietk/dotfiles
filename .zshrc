@@ -8,16 +8,10 @@ export LD_LIBRARY_PATH=$NIX_LD_LIBRARY_PATH${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
 
 # btrfs balance
 alias reclaim="sudo btrfs balance start -dusage=50 /home"
-
-# ffmstats
 alias ffmstats="ffprobe -v quiet -print_format json -show_streams -show_format"
-# History
 alias h="history"
-
-# --- Boot time stats ---
+alias wifitui="nmtui"
 alias bootstats='python3 ~/dotfiles/scripts/bootstats'
-
-# --- Quickshell ---
 alias qsrestart='pkill -9 -x quickshell 2>/dev/null; pkill quickshell 2>/dev/null; sleep 0.5; qs -c ii &'
 
 # play yt audio; -d also downloads as opus with full metadata+thumbnail to ~/Music/yt_ddl/
@@ -44,7 +38,6 @@ yt() {
         -o - "ytsearch1:${args[*]}" | mpv --no-video -
 }
 
-# --- Hyprland info ---
 alias hmon='hyprctl monitors'
 alias hcl='hyprctl clients'
 alias hwork='hyprctl workspaces'
@@ -54,17 +47,11 @@ alias hrel='hyprctl reload'
 alias hkill='hyprctl kill'          # click to kill a window
 alias hver='hyprctl version'
 alias hcf="nano $HOME/.config/hypr/hyprland.conf"
-
-# --- mem users ---
 alias memusers='ps axo rss,comm --sort=-rss | head -n 6 | awk '\''NR==1 {print $1, $2; next} {printf "%.2f MB\t%s\n", $1/1024, $2}'\'''
 alias memuserspriv='ps axo pid,comm --sort=-rss | head -n 6 | awk '\''NR==1 {next} {print $1, $2}'\'' | while read pid name; do priv=$(awk '\''/^Private_Dirty/{sum+=$2} END{printf "%.2f MB", sum/1024}'\'' /proc/$pid/smaps 2>/dev/null); echo "$priv\t$name"; done | sort -rn'
-
-# trans
 alias t="trans"
-# list files by line count
 alias filesbyline='find . -type f -name ".*" -o -type f | xargs wc -l | sort -n'
 
-# filecount: filecount --maxdepth
 filecount() {
   local depth="${1:-1}"
   find . -mindepth 1 -maxdepth "$depth" -type d -print0 | while IFS= read -r -d '' dir; do
@@ -501,46 +488,6 @@ alias pdrivebackup="rclone copy /home/richard/Documents/docs pdrive:backup/docs 
 alias gdrivebackup="rclone copy /run/media/richard/7ABF-7932/backup/restic_repo gdrive:backup/restic_repo --progress --transfers 4 --checkers 8 --retries 10 --low-level-retries 20 --timeout 5m --contimeout 1m --stats 5s"
 
 
-# Backup using restic to local SSD
-# Repo: $SSD_MOUNT/backup/restic_repo
-# Retention: 7 daily, 4 weekly, 6 monthly snapshots kept after each run.
-contentbak() {
-    local repo="$SSD_MOUNT/backup/restic_repo"
-    mountpoint -q "$SSD_MOUNT" || { echo "Drive not mounted at $SSD_MOUNT." >&2; return 1; }
-
-    local sources=(
-        $HOME/.config $HOME/Desktop $HOME/Documents $HOME/Downloads
-        $HOME/Music $HOME/Pictures $HOME/Videos $HOME/dotfiles
-    )
-    local excludes=(
-        --exclude "$HOME/.config/google-chrome"
-        --exclude "$HOME/.config/discord"
-        --exclude "$HOME/.config/mozilla"
-        --exclude "$HOME/.config/Code"
-        --exclude "$HOME/.config/libreoffice"
-        --exclude "$HOME/.config/.venv"
-        --exclude "**/.venv/"
-        --exclude "*.lock"
-    )
-
-    # Init repo on first use (check for the config object directly — no
-    # password needed — instead of asking restic, whose password prompt
-    # goes to stderr and was getting swallowed by a stray redirect here)
-    local repo_exists=false
-    [[ -f "$repo/config" ]] && repo_exists=true
-    if [[ "$repo_exists" == false ]]; then
-        echo "Initializing restic repo at $repo..."
-        restic -r "$repo" init || return 1
-    fi
-
-    echo "Backing up to $repo..."
-    restic -r "$repo" backup --verbose "${excludes[@]}" "${sources[@]}" || return 1
-
-    echo "Pruning old snapshots..."
-    restic -r "$repo" forget --keep-last 10 --prune
-
-    echo "Done → $repo"
-}
 
 # IP info
 myip() {
@@ -655,24 +602,6 @@ rb() {
     fi
 }
 
-nixcleanup() {
-    echo "==> Deleting generations older than 7 days..."
-    sudo nix-collect-garbage --delete-older-than 7d
-    echo "==> Running store GC..."
-    nix store gc
-    echo "==> Optimising store..."
-    nix store optimise
-    echo "==> Done."
-}
-
-pushdots() {
-    local msg="${1:-update dotfiles}"
-    cd ~/dotfiles
-    # Untrack anything that's become a home-manager symlink before staging
-    find . -type l -lname '/nix/store/*' -exec git rm --cached {} \; 2>/dev/null
-    git add . && git commit -m "$msg" && git push
-    cd -
-}
 
 # Go up N directories
 up() {
