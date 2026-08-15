@@ -6,3 +6,4 @@ venv/
 .config/kitty/kitty.conf
 .config/fuzzel/fuzzel.ini
 .config/wlogout/style.css
+.config/tmux/plugins/
