@@ -92,7 +92,9 @@ in
     qview
     imv
     mpv
+    anki
     qbittorrent
+    tuxguitar
     wl-clipboard
     rbw
     pinentry-qt
