@@ -16,9 +16,18 @@ let
       cp -r . $out/share/sddm/themes/sugar-candy/
     '';
   };
+
+  thermal-guard = pkgs.writeShellApplication {
+    name = "thermal-guard";
+    runtimeInputs = with pkgs; [ lm_sensors jq ];
+    text = builtins.readFile ../scripts/thermal-guard.sh;
+  };
 in
 {
-  imports = [ ./hardware-configuration.nix ];
+  imports = [
+    ./hardware-configuration.nix
+    ./modules/vpn.nix
+  ];
 
   # Bootloader
   boot.loader.systemd-boot.enable = true;
@@ -40,27 +49,6 @@ in
   networking.networkmanager.enable = true;
   networking.networkmanager.dns = "systemd-resolved";
   services.resolved.enable = true;
-  age.identityPaths = [ "/etc/ssh/ssh_host_ed25519_key" "/etc/ssh/ssh_host_rsa_key" ];
-
-  age.secrets."atvpn.conf"    = { file = ../secrets/atvpn.conf.age;    mode = "0600"; };
-  age.secrets."atvpn_pf.conf" = { file = ../secrets/atvpn_pf.conf.age; mode = "0600"; };
-  age.secrets."huvpn.conf"    = { file = ../secrets/huvpn.conf.age;     mode = "0600"; };
-  age.secrets."huvpn_pf.conf" = { file = ../secrets/huvpn_pf.conf.age;  mode = "0600"; };
-
-  networking.wg-quick.interfaces = {
-    atvpn    = { autostart = false; configFile = config.age.secrets."atvpn.conf".path; };
-    atvpn_pf = { autostart = false; configFile = config.age.secrets."atvpn_pf.conf".path; };
-    huvpn    = { autostart = false; configFile = config.age.secrets."huvpn.conf".path; };
-    huvpn_pf = { autostart = false; configFile = config.age.secrets."huvpn_pf.conf".path; };
-  };
-
-  # Start VPN after graphical.target (login screen is visible) so it doesn't
-  # block boot, but is up by the time the user finishes typing their password.
-  systemd.services."wg-quick-atvpn" = {
-    after    = [ "graphical.target" ];
-    wantedBy = [ "graphical.target" ];
-  };
-
   # Run home-manager activation after graphical.target instead of before it,
   # so the login screen appears ~3.5s earlier. home-manager finishes in ~3.5s
   # which is less than typical password-typing time, so dotfiles are ready
@@ -278,46 +266,7 @@ in
       Type = "simple";
       Restart = "always";
       RestartSec = "5s";
-      ExecStart = pkgs.writeShellScript "thermal-guard" ''
-        TEMP_INPUT=""
-        for dir in /sys/class/hwmon/hwmon*; do
-          if [ "$(cat "$dir/name" 2>/dev/null)" = "k10temp" ]; then
-            TEMP_INPUT="$dir/temp1_input"
-            break
-          fi
-        done
-        if [ -z "$TEMP_INPUT" ]; then
-          echo "k10temp hwmon device not found, exiting" >&2
-          exit 1
-        fi
-        echo "Monitoring CPU temperature at $TEMP_INPUT"
-
-        MAX_FREQ=$(cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq)
-        THROTTLE_FREQ=2000000
-        THROTTLE_TEMP=85000
-        RESTORE_TEMP=75000
-        THROTTLED=0
-
-        set_max_freq() {
-          for f in /sys/devices/system/cpu/cpu*/cpufreq/scaling_max_freq; do
-            echo "$1" > "$f"
-          done
-        }
-
-        while true; do
-          TEMP=$(cat "$TEMP_INPUT" 2>/dev/null) || { sleep 5; continue; }
-          if [ "$THROTTLED" -eq 0 ] && [ "$TEMP" -ge "$THROTTLE_TEMP" ]; then
-            echo "CPU hot ($(( TEMP / 1000 ))°C), throttling to 2 GHz"
-            set_max_freq "$THROTTLE_FREQ"
-            THROTTLED=1
-          elif [ "$THROTTLED" -eq 1 ] && [ "$TEMP" -lt "$RESTORE_TEMP" ]; then
-            echo "CPU cooled ($(( TEMP / 1000 ))°C), restoring max frequency"
-            set_max_freq "$MAX_FREQ"
-            THROTTLED=0
-          fi
-          sleep 5
-        done
-      '';
+      ExecStart = "${thermal-guard}/bin/thermal-guard";
     };
   };
 
