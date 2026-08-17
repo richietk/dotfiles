@@ -7,15 +7,15 @@ STATE_FILE="/tmp/waybar-notif-muted"
 toggle() {
     if [ -f "$STATE_FILE" ]; then
         rm -f "$STATE_FILE"
-        # Resume notifications if makoctl is available
+        # Resume notifications (makoctl mode -s sets the active mode set)
         if command -v makoctl &>/dev/null; then
-            makoctl mode default 2>/dev/null || true
+            makoctl mode -s default 2>/dev/null || true
         fi
     else
         touch "$STATE_FILE"
-        # Pause notifications if makoctl is available
+        # Pause notifications
         if command -v makoctl &>/dev/null; then
-            makoctl mode do-not-disturb 2>/dev/null || makoctl pause 2>/dev/null || true
+            makoctl mode -s do-not-disturb 2>/dev/null || true
         fi
     fi
 }

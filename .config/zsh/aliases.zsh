@@ -1,0 +1,90 @@
+# ============================================================
+#  Aliases
+# ============================================================
+
+alias bt="bluetui"
+alias wf="wifitui"
+alias wifitui="nmtui"
+alias wifirec="nmcli radio wifi off && nmcli radio wifi on"
+
+# btrfs balance
+alias reclaim="sudo btrfs balance start -dusage=50 /home"
+alias ffmstats="ffprobe -v quiet -print_format json -show_streams -show_format"
+alias h="history"
+alias bootstats='python3 ~/dotfiles/scripts/bootstats'
+alias qsrestart='pkill -9 -x quickshell 2>/dev/null; pkill quickshell 2>/dev/null; sleep 0.5; qs -c ii &'
+
+# --- Hyprland shortcuts ---
+alias hmon='hyprctl monitors'
+alias hcl='hyprctl clients'
+alias hwork='hyprctl workspaces'
+alias hdev='hyprctl devices'        # input devices (mice, keyboards)
+alias hlay='hyprctl layers'         # active layer surfaces (bars, overlays)
+alias hrel='hyprctl reload'
+alias hkill='hyprctl kill'          # click to kill a window
+alias hver='hyprctl version'
+alias hcf="nvim $HOME/.config/hypr/hyprland.conf"
+
+alias memusers='ps axo rss,comm --sort=-rss | head -n 6 | awk '\''NR==1 {print $1, $2; next} {printf "%.2f MB\t%s\n", $1/1024, $2}'\'''
+alias memuserspriv='ps axo pid,comm --sort=-rss | head -n 6 | awk '\''NR==1 {next} {print $1, $2}'\'' | while read pid name; do priv=$(awk '\''/^Private_Dirty/{sum+=$2} END{printf "%.2f MB", sum/1024}'\'' /proc/$pid/smaps 2>/dev/null); echo "$priv\t$name"; done | sort -rn'
+alias t="trans"
+alias filesbyline='find . -type f -name ".*" -o -type f | xargs wc -l | sort -n'
+
+# --- Aliases with colors ---
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'
+alias fafe='fastfetch'
+alias please='sudo'
+alias e='nvim'
+alias f='sudo -E nnn -H'
+alias c='clear'
+alias htopcopy="copy 'ps auxf'"
+
+# --- Directory shortcuts ---
+alias ssd='cd "$SSD_MOUNT"'
+alias hdd="cd /run/media/$USER/Expansion"
+alias richard="cd $HOME"
+alias thesis="cd $HOME/Documents/Thesis"
+alias config='cd ~/.config'
+alias kdeconf='cd ~/.config'
+alias ddls="cd $HOME/Downloads"
+alias docs="cd $HOME/Documents"
+alias dotf="cd $HOME/dotfiles"
+
+# --- System shortcuts ---
+alias syslog='journalctl -f'
+alias slep='systemctl suspend'
+alias localip='ip -br addr show | grep -v lo'
+
+# --- Bluetooth shortcuts ---
+alias blon='bluetoothctl power on'
+alias bloff='bluetoothctl power off'
+
+# backup commands
+alias pdrivebackup="rclone copy /home/richard/Documents/docs pdrive:backup/docs --protondrive-replace-existing-draft=true -P"
+alias gdrivebackup="rclone copy /run/media/richard/7ABF-7932/backup/restic_repo gdrive:backup/restic_repo --progress --transfers 4 --checkers 8 --retries 10 --low-level-retries 20 --timeout 5m --contimeout 1m --stats 5s"
+
+# --- Misc ---
+alias weather='curl wttr.in'
+alias largestls='ls -lhS'
+
+# --- KDE Plasma usage stats ---
+# Not used anymore
+alias plasma-counts="sqlite3 ~/.local/share/kactivitymanagerd/resources/database \
+    \"SELECT initiatingAgent, COUNT(*) as launch_count \
+    FROM ResourceEvent \
+    WHERE initiatingAgent NOT LIKE 'org.kde.plasma%' \
+    AND initiatingAgent NOT LIKE 'org.kde.libtaskmanager' \
+    AND initiatingAgent NOT LIKE 'org.kde.krunner' \
+    AND initiatingAgent NOT LIKE '%desktop-portal%' \
+    GROUP BY initiatingAgent ORDER BY launch_count DESC;\""
+
+alias plasma-scores="sqlite3 ~/.local/share/kactivitymanagerd/resources/database \
+    \"SELECT initiatingAgent, targettedResource, cachedScore \
+    FROM ResourceScoreCache \
+    WHERE scoreType = 0 \
+    AND initiatingAgent NOT LIKE 'org.kde.plasma%' \
+    AND initiatingAgent NOT LIKE 'org.kde.libtaskmanager' \
+    AND initiatingAgent NOT LIKE 'org.kde.krunner' \
+    AND initiatingAgent NOT LIKE '%desktop-portal%' \
+    ORDER BY cachedScore DESC LIMIT 15;\""

@@ -9,10 +9,6 @@
     "modules-center": ["clock"],
     "modules-right": [
         "custom/power-button",
-        "custom/sep-power",
-        "custom/keep-awake",
-        "custom/notif-mute",
-        "custom/sep-controls",
         "custom/mic-toggle",
         "wireplumber",
         "custom/sep-network",
@@ -23,7 +19,7 @@
         "custom/sep-battery",
         "battery",
         "custom/sep-resources",
-        "temperature",
+        "custom/temps",
         "cpu",
         "memory"
     ],
@@ -35,13 +31,11 @@
         "on-scroll-up": "hyprctl dispatch workspace e+1",
         "on-scroll-down": "hyprctl dispatch workspace e-1",
         "all-outputs": false,
-        "active-only": false,
-        "persistent-workspaces": {}
+        "active-only": false
     },
 
     "clock": {
-        "format": "{:%H:%M}",
-        "format-alt": "{:%H:%M  ·  %A, %B %d}",
+        "format": "{:%H:%M  ·  %a %d %b}",
         "tooltip-format": "<big>{:%B %Y}</big>\n<tt><small>{calendar}</small></tt>",
         "interval": 30
     },
@@ -49,23 +43,23 @@
     // ── RESOURCE MONITORS ─────────────────────────────────────
 
     "cpu": {
-        "format": "󰍛 {usage}%",
+        "format": "C {usage}%",
         "interval": 2,
         "tooltip": false
     },
 
     "memory": {
-        "format": " {percentage}%",
+        "format": "R {percentage}%",
         "interval": 5,
         "tooltip-format": "{used:0.1f}G / {total:0.1f}G\nSwap: {swapUsed:0.1f}G / {swapTotal:0.1f}G"
     },
 
-    "temperature": {
-        "critical-threshold": 85,
-        "format": " {temperatureC}°C",
-        "format-critical": " {temperatureC}°C",
-        "interval": 5,
-        "tooltip": false
+    "custom/temps": {
+        "exec": "~/.config/waybar/scripts/temps.sh",
+        "return-type": "json",
+        "interval": 2,
+        "format": "{}",
+        "tooltip": true
     },
 
     "battery": {
@@ -73,10 +67,9 @@
             "warning": 30,
             "critical": 15
         },
-        "format": "{icon} {capacity}%",
-        "format-charging": "󰂄 {capacity}%",
-        "format-plugged": "󰚥 {capacity}%",
-        "format-icons": ["󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
+        "format": "{capacity}%",
+        "format-charging": "+{capacity}%",
+        "format-plugged": "={capacity}%",
         "tooltip-format": "{timeTo}"
     },
 
@@ -109,7 +102,7 @@
         "format-off": "󰂲",
         "tooltip-format": "{status}",
         "tooltip-format-connected": "{device_alias}",
-        "on-click": "bluetui"
+        "on-click": "kitty -1 bluetui"
     },
 
     // ── SYSTEM TRAY ───────────────────────────────────────────
@@ -120,18 +113,6 @@
     },
 
     // ── SEPARATORS ────────────────────────────────────────────
-
-    "custom/sep-power": {
-        "format": "",
-        "exec": "echo ''",
-        "interval": "once"
-    },
-
-    "custom/sep-controls": {
-        "format": "",
-        "exec": "echo ''",
-        "interval": "once"
-    },
 
     "custom/sep-network": {
         "format": "",
@@ -153,24 +134,6 @@
 
     // ── TOGGLE BUTTONS ────────────────────────────────────────
 
-    "custom/keep-awake": {
-        "format": "{}",
-        "exec": "~/.config/waybar/scripts/keep-awake-toggle.sh show",
-        "on-click": "~/.config/waybar/scripts/keep-awake-toggle.sh toggle",
-        "interval": 2,
-        "return-type": "json",
-        "tooltip": "Keep awake toggle"
-    },
-
-    "custom/notif-mute": {
-        "format": "{}",
-        "exec": "~/.config/waybar/scripts/notifications-mute.sh show",
-        "on-click": "~/.config/waybar/scripts/notifications-mute.sh toggle",
-        "interval": 2,
-        "return-type": "json",
-        "tooltip": "Mute notifications"
-    },
-
     "custom/mic-toggle": {
         "format": "{}",
         "exec": "~/.config/waybar/scripts/mic-toggle.sh show",
@@ -191,10 +154,9 @@
     "custom/power-button": {
         "format": "{}",
         "exec": "echo '{\"text\":\"󰐥\"}'",
-        "on-click": "systemctl poweroff",
-        "on-right-click": "systemctl reboot",
+        "on-click": "wlogout -p layer-shell",
         "interval": "once",
         "return-type": "json",
-        "tooltip": "Left: Power off | Right: Reboot"
+        "tooltip": "Power menu (wlogout)"
     }
 }

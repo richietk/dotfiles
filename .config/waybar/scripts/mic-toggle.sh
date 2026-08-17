@@ -3,15 +3,15 @@
 # Uses wpctl to query and toggle mic mute state
 
 get_state() {
-    # Query the default audio source (microphone) and check if muted
-    # wpctl status shows: "Muted: no" or "Muted: yes"
+    # Query the default audio source (microphone) and check if muted.
+    # Note: this WirePlumber build has no "wpctl get-mute" subcommand;
+    # "wpctl get-volume" prints e.g. "Volume: 0.82 [MUTED]" when muted.
     if command -v wpctl &>/dev/null; then
-        mute_status=$(wpctl get-mute @DEFAULT_AUDIO_SOURCE@ 2>/dev/null)
-        if [ "$mute_status" = "Muted: yes" ]; then
-            echo "1"  # muted
-        else
-            echo "0"  # not muted
-        fi
+        volume_status=$(wpctl get-volume @DEFAULT_AUDIO_SOURCE@ 2>/dev/null)
+        case "$volume_status" in
+            *"[MUTED]"*) echo "1" ;;  # muted
+            *) echo "0" ;;            # not muted
+        esac
     else
         echo "0"  # default to not muted if wpctl unavailable
     fi

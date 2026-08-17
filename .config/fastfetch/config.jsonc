@@ -22,7 +22,6 @@
     "localip",
     "battery",
     "poweradapter",
-    "break",
-    "colors"
+    "break"
   ]
 }

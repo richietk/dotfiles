@@ -26,7 +26,6 @@ in
   home.packages = with pkgs; [
     ripgrep
     fastfetch
-    btop
     bluetui
     eza
     zoxide
@@ -110,6 +109,7 @@ in
     cargo
     gcc
     tmux
+    thunderbird
     (pkgs.writeShellApplication {
       name = "netwatch";
       runtimeInputs = with pkgs; [ tshark iproute2 gawk util-linux ];
