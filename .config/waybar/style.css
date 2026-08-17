@@ -1,0 +1,132 @@
+/* Colors from ii Material Design 3 dark scheme */
+/* bg: #111111  text: #e6e1e1  muted: #948f94  border: #49464a */
+/* active: #2d2a2f / #cbc4cb  hover: #1a1a1a  error: #ffb4ab  */
+
+* {
+    border: none;
+    border-radius: 0;
+    font-family: "JetBrains Mono NF", "Google Sans Flex", monospace;
+    font-size: 13px;
+    min-height: 0;
+    padding: 0;
+    margin: 0;
+}
+
+window#waybar {
+    background-color: #111111;
+    color: #e6e1e1;
+    border-bottom: 1px solid #49464a;
+}
+
+/* Round bottom corners to match ii hug style */
+window#waybar > box {
+    border-radius: 0 0 10px 10px;
+}
+
+/* ── Workspaces ─────────────────────────────────────────── */
+
+#workspaces {
+    margin: 0 8px;
+}
+
+#workspaces button {
+    padding: 2px 12px;
+    margin: 5px 2px;
+    background: transparent;
+    color: #948f94;
+    border-radius: 100px;
+    min-width: 18px;
+    transition: all 0.15s ease;
+}
+
+#workspaces button:hover {
+    background: #1a1a1a;
+    color: #e6e1e1;
+}
+
+#workspaces button.active {
+    background: #2d2a2f;
+    color: #cbc4cb;
+}
+
+#workspaces button.urgent {
+    background: #93000a;
+    color: #ffdad6;
+}
+
+/* ── Clock ──────────────────────────────────────────────── */
+
+#clock {
+    font-size: 14px;
+    color: #e6e1e1;
+    padding: 0 16px;
+}
+
+/* ── Right modules ──────────────────────────────────────── */
+
+#cpu,
+#memory,
+#temperature,
+#battery,
+#network,
+#bluetooth,
+#wireplumber,
+#tray {
+    color: #e6e1e1;
+    padding: 0 10px;
+}
+
+/* Resource group separated from the rest */
+#temperature {
+    margin-right: 6px;
+    padding-right: 14px;
+    border-right: 1px solid #49464a;
+}
+
+/* Battery separated from resource group */
+#battery {
+    padding-left: 14px;
+    border-left: 1px solid #49464a;
+    margin-left: 6px;
+}
+
+/* Tray right padding */
+#tray {
+    padding-right: 12px;
+    padding-left: 8px;
+}
+
+/* ── State colors ───────────────────────────────────────── */
+
+#battery.warning {
+    color: #e6b400;
+}
+
+#battery.critical {
+    color: #ffb4ab;
+    animation-name: blink;
+    animation-duration: 1s;
+    animation-timing-function: steps(1);
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+
+#temperature.critical {
+    color: #ffb4ab;
+}
+
+@keyframes blink {
+    to { color: #690005; }
+}
+
+/* ── Tray icons ─────────────────────────────────────────── */
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+    background-color: #31292b;
+    border-radius: 4px;
+}

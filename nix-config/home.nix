@@ -83,9 +83,9 @@ in
     grim
     slurp
     wf-recorder
-    quickshell
-    kdePackages.qt5compat
-    kdePackages.qtpositioning
+    waybar
+    mako
+    cliphist
     claude-code
     doublecmd
     restic
