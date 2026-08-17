@@ -1,3 +1,5 @@
+// Waybar config - ii Material Design 3 dark theme
+// Ported from Quickshell taskbar for pixel-perfect fidelity
 {
     "layer": "top",
     "position": "top",
@@ -5,14 +7,36 @@
     "spacing": 0,
     "modules-left": ["hyprland/workspaces"],
     "modules-center": ["clock"],
-    "modules-right": ["temperature", "cpu", "memory", "battery", "network", "bluetooth", "wireplumber", "tray"],
+    "modules-right": [
+        "custom/power-button",
+        "custom/sep-power",
+        "custom/keep-awake",
+        "custom/notif-mute",
+        "custom/sep-controls",
+        "custom/mic-toggle",
+        "wireplumber",
+        "custom/sep-network",
+        "bluetooth",
+        "network",
+        "custom/notif-badge",
+        "tray",
+        "custom/sep-battery",
+        "battery",
+        "custom/sep-resources",
+        "temperature",
+        "cpu",
+        "memory"
+    ],
+
+    // ── LAYOUT MODULES ────────────────────────────────────────
 
     "hyprland/workspaces": {
         "format": "{id}",
         "on-scroll-up": "hyprctl dispatch workspace e+1",
         "on-scroll-down": "hyprctl dispatch workspace e-1",
         "all-outputs": false,
-        "active-only": false
+        "active-only": false,
+        "persistent-workspaces": {}
     },
 
     "clock": {
@@ -21,6 +45,8 @@
         "tooltip-format": "<big>{:%B %Y}</big>\n<tt><small>{calendar}</small></tt>",
         "interval": 30
     },
+
+    // ── RESOURCE MONITORS ─────────────────────────────────────
 
     "cpu": {
         "format": "󰍛 {usage}%",
@@ -54,6 +80,19 @@
         "tooltip-format": "{timeTo}"
     },
 
+    // ── AUDIO CONTROL ─────────────────────────────────────────
+
+    "wireplumber": {
+        "format": "{icon} {volume}%",
+        "format-muted": "󰝟",
+        "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+        "on-scroll-up": "wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+",
+        "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-",
+        "format-icons": ["󰕿", "󰖀", "󰕾"]
+    },
+
+    // ── NETWORK & BLUETOOTH ───────────────────────────────────
+
     "network": {
         "format-wifi": "󰤨 {signalStrength}%",
         "format-ethernet": "󰈀 {ipaddr}",
@@ -73,17 +112,89 @@
         "on-click": "bluetui"
     },
 
-    "wireplumber": {
-        "format": "{icon} {volume}%",
-        "format-muted": "󰝟",
-        "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
-        "on-scroll-up": "wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+",
-        "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-",
-        "format-icons": ["󰕿", "󰖀", "󰕾"]
-    },
+    // ── SYSTEM TRAY ───────────────────────────────────────────
 
     "tray": {
         "icon-size": 16,
         "spacing": 6
+    },
+
+    // ── SEPARATORS ────────────────────────────────────────────
+
+    "custom/sep-power": {
+        "format": "",
+        "exec": "echo ''",
+        "interval": "once"
+    },
+
+    "custom/sep-controls": {
+        "format": "",
+        "exec": "echo ''",
+        "interval": "once"
+    },
+
+    "custom/sep-network": {
+        "format": "",
+        "exec": "echo ''",
+        "interval": "once"
+    },
+
+    "custom/sep-battery": {
+        "format": "",
+        "exec": "echo ''",
+        "interval": "once"
+    },
+
+    "custom/sep-resources": {
+        "format": "",
+        "exec": "echo ''",
+        "interval": "once"
+    },
+
+    // ── TOGGLE BUTTONS ────────────────────────────────────────
+
+    "custom/keep-awake": {
+        "format": "{}",
+        "exec": "~/.config/waybar/scripts/keep-awake-toggle.sh show",
+        "on-click": "~/.config/waybar/scripts/keep-awake-toggle.sh toggle",
+        "interval": 2,
+        "return-type": "json",
+        "tooltip": "Keep awake toggle"
+    },
+
+    "custom/notif-mute": {
+        "format": "{}",
+        "exec": "~/.config/waybar/scripts/notifications-mute.sh show",
+        "on-click": "~/.config/waybar/scripts/notifications-mute.sh toggle",
+        "interval": 2,
+        "return-type": "json",
+        "tooltip": "Mute notifications"
+    },
+
+    "custom/mic-toggle": {
+        "format": "{}",
+        "exec": "~/.config/waybar/scripts/mic-toggle.sh show",
+        "on-click": "~/.config/waybar/scripts/mic-toggle.sh toggle",
+        "interval": 2,
+        "return-type": "json",
+        "tooltip": "Microphone toggle"
+    },
+
+    "custom/notif-badge": {
+        "format": "{}",
+        "exec": "~/.config/waybar/scripts/notif-badge.sh",
+        "interval": 2,
+        "return-type": "json",
+        "tooltip": "Unread notifications"
+    },
+
+    "custom/power-button": {
+        "format": "{}",
+        "exec": "echo '{\"text\":\"󰐥\"}'",
+        "on-click": "systemctl poweroff",
+        "on-right-click": "systemctl reboot",
+        "interval": "once",
+        "return-type": "json",
+        "tooltip": "Left: Power off | Right: Reboot"
     }
 }

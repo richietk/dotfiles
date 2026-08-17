@@ -1,6 +1,5 @@
-/* Colors from ii Material Design 3 dark scheme */
-/* bg: #111111  text: #e6e1e1  muted: #948f94  border: #49464a */
-/* active: #2d2a2f / #cbc4cb  hover: #1a1a1a  error: #ffb4ab  */
+/* Waybar CSS - ii Material Design 3 Dark Theme */
+/* Ported from Quickshell for pixel-perfect visual fidelity */
 
 * {
     border: none;
@@ -18,12 +17,9 @@ window#waybar {
     border-bottom: 1px solid #49464a;
 }
 
-/* Round bottom corners to match ii hug style */
-window#waybar > box {
-    border-radius: 0 0 10px 10px;
-}
-
-/* ── Workspaces ─────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────── */
+/*                       WORKSPACES                            */
+/* ─────────────────────────────────────────────────────────── */
 
 #workspaces {
     margin: 0 8px;
@@ -54,49 +50,73 @@ window#waybar > box {
     color: #ffdad6;
 }
 
-/* ── Clock ──────────────────────────────────────────────── */
+#workspaces button.visible {
+    background: transparent;
+    color: #948f94;
+}
+
+#workspaces button.empty {
+    background: transparent;
+    color: #948f94;
+    opacity: 0.6;
+}
+
+/* ─────────────────────────────────────────────────────────── */
+/*                        CLOCK                               */
+/* ─────────────────────────────────────────────────────────── */
 
 #clock {
     font-size: 14px;
     color: #e6e1e1;
     padding: 0 16px;
+    margin: 0 2px;
 }
 
-/* ── Right modules ──────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────── */
+/*                   RESOURCE MONITORS                         */
+/* ─────────────────────────────────────────────────────────── */
 
 #cpu,
 #memory,
-#temperature,
-#battery,
-#network,
-#bluetooth,
-#wireplumber,
-#tray {
+#temperature {
     color: #e6e1e1;
     padding: 0 10px;
+    margin: 0 1px;
 }
 
-/* Resource group separated from the rest */
 #temperature {
     margin-right: 6px;
     padding-right: 14px;
-    border-right: 1px solid #49464a;
 }
 
-/* Battery separated from resource group */
+#temperature.critical {
+    color: #ffb4ab;
+    animation: pulse-temp 1s steps(1) infinite alternate;
+}
+
+@keyframes pulse-temp {
+    to { color: #690005; }
+}
+
+/* ─────────────────────────────────────────────────────────── */
+/*                       BATTERY                               */
+/* ─────────────────────────────────────────────────────────── */
+
 #battery {
+    color: #e6e1e1;
+    padding: 0 10px;
     padding-left: 14px;
-    border-left: 1px solid #49464a;
+    margin: 0 1px;
     margin-left: 6px;
 }
 
-/* Tray right padding */
-#tray {
-    padding-right: 12px;
-    padding-left: 8px;
+#battery.charging {
+    color: #4d9c4f;
 }
 
-/* ── State colors ───────────────────────────────────────── */
+#battery.plugged {
+    color: #7fb87f;
+}
 
 #battery.warning {
     color: #e6b400;
@@ -104,22 +124,76 @@ window#waybar > box {
 
 #battery.critical {
     color: #ffb4ab;
-    animation-name: blink;
-    animation-duration: 1s;
-    animation-timing-function: steps(1);
-    animation-iteration-count: infinite;
-    animation-direction: alternate;
+    animation: pulse-battery 1s steps(1) infinite alternate;
 }
 
-#temperature.critical {
-    color: #ffb4ab;
-}
-
-@keyframes blink {
+@keyframes pulse-battery {
     to { color: #690005; }
 }
 
-/* ── Tray icons ─────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────── */
+/*                   AUDIO & NETWORKING                        */
+/* ─────────────────────────────────────────────────────────── */
+
+#wireplumber {
+    color: #e6e1e1;
+    padding: 0 10px;
+    margin: 0 1px;
+}
+
+#wireplumber.muted {
+    color: #948f94;
+}
+
+#network {
+    color: #e6e1e1;
+    padding: 0 10px;
+    margin: 0 1px;
+}
+
+#network.disconnected {
+    color: #948f94;
+}
+
+#network.linked {
+    color: #4d9c4f;
+}
+
+#network.disabled {
+    color: #948f94;
+    opacity: 0.6;
+}
+
+#bluetooth {
+    color: #e6e1e1;
+    padding: 0 10px;
+    margin: 0 1px;
+}
+
+#bluetooth.disabled {
+    color: #948f94;
+    opacity: 0.6;
+}
+
+#bluetooth.off {
+    color: #948f94;
+    opacity: 0.6;
+}
+
+#bluetooth.connected {
+    color: #7fb87f;
+}
+
+/* ─────────────────────────────────────────────────────────── */
+/*                    SYSTEM TRAY                              */
+/* ─────────────────────────────────────────────────────────── */
+
+#tray {
+    color: #e6e1e1;
+    padding: 0 12px;
+    padding-left: 8px;
+    margin: 0 1px;
+}
 
 #tray > .passive {
     -gtk-icon-effect: dim;
@@ -129,4 +203,102 @@ window#waybar > box {
     -gtk-icon-effect: highlight;
     background-color: #31292b;
     border-radius: 4px;
+}
+
+/* ─────────────────────────────────────────────────────────── */
+/*                    SEPARATORS                               */
+/* ─────────────────────────────────────────────────────────── */
+
+#custom-sep-power,
+#custom-sep-controls,
+#custom-sep-network,
+#custom-sep-battery,
+#custom-sep-resources {
+    color: #49464a;
+    padding: 0 4px;
+    margin: 6px 1px;
+    min-width: 1px;
+    font-size: 8px;
+}
+
+/* ─────────────────────────────────────────────────────────── */
+/*                   TOGGLE BUTTONS                            */
+/* ─────────────────────────────────────────────────────────── */
+
+#custom-keep-awake,
+#custom-notif-mute,
+#custom-mic-toggle,
+#custom-power-button {
+    color: #e6e1e1;
+    padding: 4px 10px;
+    margin: 0 2px;
+    background: transparent;
+    border-radius: 12px;
+    transition: all 0.15s ease;
+}
+
+#custom-keep-awake:hover,
+#custom-notif-mute:hover,
+#custom-mic-toggle:hover,
+#custom-power-button:hover {
+    background: #1a1a1a;
+    color: #e6e1e1;
+}
+
+#custom-keep-awake.active,
+#custom-notif-mute.active,
+#custom-mic-toggle.active {
+    background: #4d4b4d;
+    color: #ece6e9;
+}
+
+#custom-keep-awake.active:hover,
+#custom-notif-mute.active:hover,
+#custom-mic-toggle.active:hover {
+    background-color: #5a5859;
+}
+
+#custom-mic-toggle.muted {
+    background: transparent;
+    color: #948f94;
+}
+
+/* ─────────────────────────────────────────────────────────── */
+/*                 NOTIFICATION BADGE                          */
+/* ─────────────────────────────────────────────────────────── */
+
+#custom-notif-badge {
+    color: #e6e1e1;
+    padding: 0 8px;
+    margin: 0 1px;
+}
+
+#custom-notif-badge.unread {
+    color: #ffb4ab;
+    font-weight: bold;
+}
+
+#custom-notif-badge.empty {
+    color: #111111;
+    opacity: 0;
+    min-width: 0;
+    padding: 0;
+}
+
+/* ─────────────────────────────────────────────────────────── */
+/*                   STATE OVERRIDES                           */
+/* ─────────────────────────────────────────────────────────── */
+
+/* Focus indicator (if needed) */
+window#waybar {
+    outline: none;
+}
+
+/* Ensure proper spacing at bar edges */
+#custom-power-button {
+    margin-right: 8px;
+}
+
+#memory {
+    margin-right: 1px;
 }
