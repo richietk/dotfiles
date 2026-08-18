@@ -46,7 +46,7 @@ in
   boot.consoleLogLevel = 7;
   boot.kernel.sysctl."net.ipv4.tcp_mtu_probing" = 1;
   boot.kernelParams = [ "reboot=efi" "amd_iommu=off" ];
-
+  boot.kernel.sysctl."vm.vfs_cache_pressure" = 50;
   # Network
   networking.hostName = "nixos";
   networking.networkmanager.enable = true;
