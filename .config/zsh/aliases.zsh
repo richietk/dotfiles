@@ -9,6 +9,11 @@ alias wifirec="nmcli radio wifi off && nmcli radio wifi on"
 
 # btrfs balance
 alias reclaim="sudo btrfs balance start -dusage=50 /home"
+
+# screenshot
+alias scr='grim -g "$(slurp)" - | wl-copy'
+
+
 alias ffmstats="ffprobe -v quiet -print_format json -show_streams -show_format"
 alias h="history"
 alias bootstats='python3 ~/dotfiles/scripts/bootstats'

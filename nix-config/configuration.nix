@@ -19,7 +19,7 @@ let
 
   thermal-guard = pkgs.writeShellApplication {
     name = "thermal-guard";
-    runtimeInputs = with pkgs; [ lm_sensors jq ];
+    runtimeInputs = with pkgs; [ lm_sensors jq gawk ];
     text = builtins.readFile ../scripts/thermal-guard.sh;
   };
 in
