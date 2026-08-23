@@ -2,7 +2,20 @@
   "permissions": {
     "deny": [
       "Bash(sudo nixos-rebuild *)",
-      "Bash(nixos-rebuild *)"
+      "Bash(nixos-rebuild *)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(git push*)",
+      "Bash(git rm*)",
+      "Bash(git reset*)",
+      "Bash(git rebase*)",
+      "Bash(git merge*)",
+      "Bash(git checkout*)",
+      "Bash(git restore*)",
+      "Bash(git stash*)",
+      "Bash(git tag*)",
+      "Bash(git branch -d*)",
+      "Bash(git branch -D*)"
     ],
     "allow": [
       "Bash(ls *)",
