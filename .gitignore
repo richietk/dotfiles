@@ -2,6 +2,10 @@
 venv/
 .zshrc.secrets
 
+# Nix build outputs
+result
+result-*
+
 # Managed by home-manager
 .config/kitty/kitty.conf
 .config/fuzzel/fuzzel.ini

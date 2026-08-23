@@ -11,15 +11,11 @@ update:
 # Rebuild NixOS and push dotfiles on success
 rebuild:
     sudo nixos-rebuild switch --flake ~/dotfiles/nix-config#nixos
-    cd ~/dotfiles && \
-        find . -type l -lname '/nix/store/*' -exec git rm --cached {} \; 2>/dev/null || true && \
-        git add . && { git commit -m "update dotfiles" && git push || true; }
+    cd ~/dotfiles && git add . && { git commit -m "update dotfiles" || true; } && git push
 
-# push to gh 
+# push to gh
 push:
-    cd ~/dotfiles && \
-        find . -type l -lname '/nix/store/*' -exec git rm --cached {} \; 2>/dev/null || true && \
-        git add . && { git commit -m "update dotfiles" && git push || true; }
+    cd ~/dotfiles && git add . && { git commit -m "update dotfiles" || true; } && git push
 
 
 
