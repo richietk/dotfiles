@@ -15,6 +15,14 @@ rebuild:
         find . -type l -lname '/nix/store/*' -exec git rm --cached {} \; 2>/dev/null || true && \
         git add . && { git commit -m "update dotfiles" && git push || true; }
 
+# push to gh 
+push:
+    cd ~/dotfiles && \
+        find . -type l -lname '/nix/store/*' -exec git rm --cached {} \; 2>/dev/null || true && \
+        git add . && { git commit -m "update dotfiles" && git push || true; }
+
+
+
 # Remove generations older than 7 days, GC store, optimise, delete caches, organize and tidy up
 putzfrau:
     sudo nix-collect-garbage --delete-older-than 7d

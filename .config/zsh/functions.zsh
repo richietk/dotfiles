@@ -274,3 +274,15 @@ toppct() {
         }'
     fi
 }
+
+
+function download_insta_reels {
+    local reels_dir=~/Downloads/reels
+    mkdir -p "$reels_dir"
+    grep -oP 'https://www\.instagram\.com/reel/[^"]+' ~/Downloads/saved_posts.json | sort -u > "$reels_dir/reel_links.txt"
+    yt-dlp --cookies-from-browser firefox -P "$reels_dir" -a "$reels_dir/reel_links.txt"
+    echo "=== IN LIST BUT NOT DOWNLOADED ===" && \
+    comm -23 \
+        <(grep -oP 'reel/\K[^/]+' "$reels_dir/reel_links.txt" | sort) \
+        <(ls "$reels_dir"/*.mp4 | grep -oP '\[\K[^\]]+(?=\])' | sort) | wc -l
+}
